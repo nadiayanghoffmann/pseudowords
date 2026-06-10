@@ -452,6 +452,7 @@ class InputWord(TypedDict):
     word_ptaf: float
     word_otan: int
     word_otaf: float
+    pseudoword: str
 
 
 def load_input(path: str) -> list[InputWord]:
@@ -498,6 +499,8 @@ def load_input(path: str) -> list[InputWord]:
             except (ValueError, TypeError):
                 word_otaf = 0.0
 
+            pseudoword = row.get("Pseudoword", "").strip()
+
             rows.append({
                 "word": word_cleaned,
                 "length_ortho": length_ortho,
@@ -505,6 +508,7 @@ def load_input(path: str) -> list[InputWord]:
                 "word_ptaf": word_ptaf,
                 "word_otan": word_otan,
                 "word_otaf": word_otaf,
+                "pseudoword": pseudoword,
             })
     return rows
 
@@ -577,56 +581,47 @@ def run(
             status_msg = _WITTY_STATUSES[i % len(_WITTY_STATUSES)]
             progress.update(task, description=f"{word} — {status_msg}")
 
-            # ── Try Wuggy first ───────────────────────────────────────────
-            orth_candidates = wuggy_candidates(word, wuggy_gen, n_candidates, lexicon_words)
+            existing_pw = entry.get("pseudoword", "")
 
-            if orth_candidates:
-                best_pw      = None
-                best_phono   = None
-                best_ptaf_v  = None
-                best_ptan_v  = None
-                best_rdiff   = float("inf")
-
-                for pw in orth_candidates:
-                    approx = pseudoword_to_phono(
-                        pw, onset_map, rime_map, source_phono, vowels)
-                    if not approx:
-                        continue
+            if existing_pw:
+                # ── Use existing pseudoword ────────────────────────────────
+                best_pw = existing_pw
+                approx = pseudoword_to_phono(
+                    best_pw, onset_map, rime_map, source_phono, vowels)
+                
+                if approx:
                     cptaf_sum, cptan = compute_ptaf_and_ptan(approx, phono_to_words, all_phones)
-                    rdiff = (abs(cptaf_sum - target_ptaf) / target_ptaf) if target_ptaf > 0 \
-                            else abs(cptaf_sum - target_ptaf)
-                    if rdiff < best_rdiff:
-                        best_rdiff  = rdiff
-                        best_pw     = pw
-                        best_phono  = approx
-                        best_ptaf_v = cptaf_sum
-                        best_ptan_v = cptan
+                    best_ptaf_v = cptaf_sum
+                    best_ptan_v = cptan
+                    best_phono = approx
+                    best_rdiff = (abs(cptaf_sum - target_ptaf) / target_ptaf) if target_ptaf > 0 \
+                                 else abs(cptaf_sum - target_ptaf)
+                else:
+                    best_ptaf_v = 0.0
+                    best_ptan_v = 0
+                    best_phono = ()
+                    best_rdiff = 0.0
 
                 if best_rdiff <= tolerance:
                     match_status = "MATCHED"
                     marker = "[green]✓[/green]"
-                    tag    = ""
+                    tag    = "  [cyan]existing[/cyan]"
                 else:
                     match_status = "BEST_AVAILABLE"
                     marker = "[yellow]~[/yellow]"
-                    tag    = "  [yellow]BEST_AVAILABLE[/yellow]"
+                    tag    = "  [cyan]existing[/cyan] [yellow]BEST_AVAILABLE[/yellow]"
 
                 disc_str = phono_to_disc(best_phono) if best_phono else ""
                 
-                # Compute orthographic neighborhood statistics for selected best candidate
-                if best_pw:
-                    pw_otan, pw_otaf_sum = compute_otan_otaf(best_pw, lexicon)
-                    pw_otaf_mean = pw_otaf_sum / pw_otan if pw_otan > 0 else 0.0
-                else:
-                    pw_otan, pw_otaf_sum, pw_otaf_mean = 0, 0.0, 0.0
+                pw_otan, pw_otaf_sum = compute_otan_otaf(best_pw, lexicon)
+                pw_otaf_mean = pw_otaf_sum / pw_otan if pw_otan > 0 else 0.0
 
-                # Compute difference statistics compared to real word
                 otan_diff = pw_otan - entry["word_otan"]
                 otaf_reldiff = (abs(pw_otaf_mean - entry["word_otaf"]) / entry["word_otaf"] * 100) \
                                if entry["word_otaf"] > 0 else 0.0
 
                 progress.print(
-                    f"  {marker} [bold]{word:12s}[/bold] → [bold]{best_pw}[/bold]"
+                    f"  {marker} [bold]{word:12s}[/bold] → [bold]{best_pw}[/bold] (existing)"
                     f"  [dim][{disc_str}]  PTAF={best_ptaf_v:.4f}"
                     f"  diff={best_rdiff*100:.1f}%[/dim]{tag}"
                 )
@@ -638,90 +633,165 @@ def run(
                     "Word_PTAF":        entry["word_ptaf"],
                     "Word_OTAN":        entry["word_otan"],
                     "Word_OTAF":        entry["word_otaf"],
-                    "Pseudoword":       best_pw     if best_pw    else "",
-                    "Pseudoword_PTAN":  best_ptan_v if best_ptan_v is not None else "",
-                    "Pseudoword_PTAF":  round(best_ptaf_v, 4)      if best_ptaf_v is not None else "",
+                    "Pseudoword":       best_pw,
+                    "Pseudoword_PTAN":  best_ptan_v,
+                    "Pseudoword_PTAF":  round(best_ptaf_v, 4),
                     "Pseudoword_OTAN":  pw_otan,
                     "Pseudoword_OTAF":  round(pw_otaf_mean, 4),
-                    "PTAF_RelDiff_Pct": round(best_rdiff * 100, 2) if best_pw     else "",
+                    "PTAF_RelDiff_Pct": round(best_rdiff * 100, 2),
                     "OTAN_Diff":        otan_diff,
                     "OTAF_RelDiff_Pct": round(otaf_reldiff, 2),
                     "Status":           match_status,
-                    "Method":           "wuggy",
+                    "Method":           "existing",
                 })
+                progress.advance(task)
 
             else:
-                # ── Fallback: phoneme mutation ────────────────────────────
-                progress.update(task, description=f"{word} — using phoneme mutation fallback")
-                phono_candidates = fallback_candidates(
-                    phono_len, all_phones, consonants, vowels,
-                    n_candidates * 10, lexicon_phonos, words_by_length, rng
-                )
+                # ── Try Wuggy first ───────────────────────────────────────────
+                orth_candidates = wuggy_candidates(word, wuggy_gen, n_candidates, lexicon_words)
 
-                best_seq    = None
-                best_ptaf_v = None
-                best_ptan_v = None
-                best_rdiff  = float("inf")
+                if orth_candidates:
+                    best_pw      = None
+                    best_phono   = None
+                    best_ptaf_v  = None
+                    best_ptan_v  = None
+                    best_rdiff   = float("inf")
 
-                for seq in phono_candidates:
-                    cptaf_sum, cptan = compute_ptaf_and_ptan(seq, phono_to_words, all_phones)
-                    rdiff = (abs(cptaf_sum - target_ptaf) / target_ptaf) if target_ptaf > 0 \
-                            else abs(cptaf_sum - target_ptaf)
-                    if rdiff < best_rdiff:
-                        best_rdiff  = rdiff
-                        best_seq    = seq
-                        best_ptaf_v = cptaf_sum
-                        best_ptan_v = cptan
+                    for pw in orth_candidates:
+                        approx = pseudoword_to_phono(
+                            pw, onset_map, rime_map, source_phono, vowels)
+                        if not approx:
+                            continue
+                        cptaf_sum, cptan = compute_ptaf_and_ptan(approx, phono_to_words, all_phones)
+                        rdiff = (abs(cptaf_sum - target_ptaf) / target_ptaf) if target_ptaf > 0 \
+                                else abs(cptaf_sum - target_ptaf)
+                        if rdiff < best_rdiff:
+                            best_rdiff  = rdiff
+                            best_pw     = pw
+                            best_phono  = approx
+                            best_ptaf_v = cptaf_sum
+                            best_ptan_v = cptan
 
-                spelling = disc_to_spelling(best_seq) if best_seq else ""
-                disc_str = phono_to_disc(best_seq) if best_seq else ""
-                if best_rdiff <= tolerance:
-                    match_status = "MATCHED"
-                    marker = "[green]✓[/green]"
-                    tag    = "  [dim]fallback[/dim]"
+                    if best_rdiff <= tolerance:
+                        match_status = "MATCHED"
+                        marker = "[green]✓[/green]"
+                        tag    = ""
+                    else:
+                        match_status = "BEST_AVAILABLE"
+                        marker = "[yellow]~[/yellow]"
+                        tag    = "  [yellow]BEST_AVAILABLE[/yellow]"
+
+                    disc_str = phono_to_disc(best_phono) if best_phono else ""
+                    
+                    # Compute orthographic neighborhood statistics for selected best candidate
+                    if best_pw:
+                        pw_otan, pw_otaf_sum = compute_otan_otaf(best_pw, lexicon)
+                        pw_otaf_mean = pw_otaf_sum / pw_otan if pw_otan > 0 else 0.0
+                    else:
+                        pw_otan, pw_otaf_sum, pw_otaf_mean = 0, 0.0, 0.0
+
+                    # Compute difference statistics compared to real word
+                    otan_diff = pw_otan - entry["word_otan"]
+                    otaf_reldiff = (abs(pw_otaf_mean - entry["word_otaf"]) / entry["word_otaf"] * 100) \
+                                   if entry["word_otaf"] > 0 else 0.0
+
+                    progress.print(
+                        f"  {marker} [bold]{word:12s}[/bold] → [bold]{best_pw}[/bold]"
+                        f"  [dim][{disc_str}]  PTAF={best_ptaf_v:.4f}"
+                        f"  diff={best_rdiff*100:.1f}%[/dim]{tag}"
+                    )
+
+                    results.append({
+                        "Word":             word,
+                        "Length (Ortho)":   entry["length_ortho"],
+                        "Word_PTAN":        entry["word_ptan"],
+                        "Word_PTAF":        entry["word_ptaf"],
+                        "Word_OTAN":        entry["word_otan"],
+                        "Word_OTAF":        entry["word_otaf"],
+                        "Pseudoword":       best_pw     if best_pw    else "",
+                        "Pseudoword_PTAN":  best_ptan_v if best_ptan_v is not None else "",
+                        "Pseudoword_PTAF":  round(best_ptaf_v, 4)      if best_ptaf_v is not None else "",
+                        "Pseudoword_OTAN":  pw_otan,
+                        "Pseudoword_OTAF":  round(pw_otaf_mean, 4),
+                        "PTAF_RelDiff_Pct": round(best_rdiff * 100, 2) if best_pw     else "",
+                        "OTAN_Diff":        otan_diff,
+                        "OTAF_RelDiff_Pct": round(otaf_reldiff, 2),
+                        "Status":           match_status,
+                        "Method":           "wuggy",
+                    })
+
                 else:
-                    match_status = "BEST_AVAILABLE"
-                    marker = "[yellow]~[/yellow]"
-                    tag    = "  [yellow]BEST_AVAILABLE[/yellow]  [dim]fallback[/dim]"
+                    # ── Fallback: phoneme mutation ────────────────────────────
+                    progress.update(task, description=f"{word} — using phoneme mutation fallback")
+                    phono_candidates = fallback_candidates(
+                        phono_len, all_phones, consonants, vowels,
+                        n_candidates * 10, lexicon_phonos, words_by_length, rng
+                    )
 
-                # Compute orthographic neighborhood statistics for fallback spelling candidate
-                if spelling:
-                    pw_otan, pw_otaf_sum = compute_otan_otaf(spelling, lexicon)
-                    pw_otaf_mean = pw_otaf_sum / pw_otan if pw_otan > 0 else 0.0
-                else:
-                    pw_otan, pw_otaf_sum, pw_otaf_mean = 0, 0.0, 0.0
+                    best_seq    = None
+                    best_ptaf_v = None
+                    best_ptan_v = None
+                    best_rdiff  = float("inf")
 
-                # Compute difference statistics compared to real word
-                otan_diff = pw_otan - entry["word_otan"]
-                otaf_reldiff = (abs(pw_otaf_mean - entry["word_otaf"]) / entry["word_otaf"] * 100) \
-                               if entry["word_otaf"] > 0 else 0.0
+                    for seq in phono_candidates:
+                        cptaf_sum, cptan = compute_ptaf_and_ptan(seq, phono_to_words, all_phones)
+                        rdiff = (abs(cptaf_sum - target_ptaf) / target_ptaf) if target_ptaf > 0 \
+                                else abs(cptaf_sum - target_ptaf)
+                        if rdiff < best_rdiff:
+                            best_rdiff  = rdiff
+                            best_seq    = seq
+                            best_ptaf_v = cptaf_sum
+                            best_ptan_v = cptan
 
-                progress.print(
-                    f"  {marker} [bold]{word:12s}[/bold] → [bold]{spelling}[/bold]"
-                    f"  [dim][{disc_str}]  PTAF={best_ptaf_v:.4f}"
-                    f"  diff={best_rdiff*100:.1f}%[/dim]{tag}"
-                )
+                    spelling = disc_to_spelling(best_seq) if best_seq else ""
+                    disc_str = phono_to_disc(best_seq) if best_seq else ""
+                    if best_rdiff <= tolerance:
+                        match_status = "MATCHED"
+                        marker = "[green]✓[/green]"
+                        tag    = "  [dim]fallback[/dim]"
+                    else:
+                        match_status = "BEST_AVAILABLE"
+                        marker = "[yellow]~[/yellow]"
+                        tag    = "  [yellow]BEST_AVAILABLE[/yellow]  [dim]fallback[/dim]"
 
-                results.append({
-                    "Word":             word,
-                    "Length (Ortho)":   entry["length_ortho"],
-                    "Word_PTAN":        entry["word_ptan"],
-                    "Word_PTAF":        entry["word_ptaf"],
-                    "Word_OTAN":        entry["word_otan"],
-                    "Word_OTAF":        entry["word_otaf"],
-                    "Pseudoword":       spelling,
-                    "Pseudoword_PTAN":  best_ptan_v if best_ptan_v is not None else "",
-                    "Pseudoword_PTAF":  round(best_ptaf_v, 4)      if best_ptaf_v is not None else "",
-                    "Pseudoword_OTAN":  pw_otan,
-                    "Pseudoword_OTAF":  round(pw_otaf_mean, 4),
-                    "PTAF_RelDiff_Pct": round(best_rdiff * 100, 2) if best_seq     else "",
-                    "OTAN_Diff":        otan_diff,
-                    "OTAF_RelDiff_Pct": round(otaf_reldiff, 2),
-                    "Status":           match_status,
-                    "Method":           "fallback",
-                })
+                    # Compute orthographic neighborhood statistics for fallback spelling candidate
+                    if spelling:
+                        pw_otan, pw_otaf_sum = compute_otan_otaf(spelling, lexicon)
+                        pw_otaf_mean = pw_otaf_sum / pw_otan if pw_otan > 0 else 0.0
+                    else:
+                        pw_otan, pw_otaf_sum, pw_otaf_mean = 0, 0.0, 0.0
 
-            progress.advance(task)
+                    # Compute difference statistics compared to real word
+                    otan_diff = pw_otan - entry["word_otan"]
+                    otaf_reldiff = (abs(pw_otaf_mean - entry["word_otaf"]) / entry["word_otaf"] * 100) \
+                                   if entry["word_otaf"] > 0 else 0.0
+
+                    progress.print(
+                        f"  {marker} [bold]{word:12s}[/bold] → [bold]{spelling}[/bold]"
+                        f"  [dim][{disc_str}]  PTAF={best_ptaf_v:.4f}"
+                        f"  diff={best_rdiff*100:.1f}%[/dim]{tag}"
+                    )
+
+                    results.append({
+                        "Word":             word,
+                        "Length (Ortho)":   entry["length_ortho"],
+                        "Word_PTAN":        entry["word_ptan"],
+                        "Word_PTAF":        entry["word_ptaf"],
+                        "Word_OTAN":        entry["word_otan"],
+                        "Word_OTAF":        entry["word_otaf"],
+                        "Pseudoword":       spelling,
+                        "Pseudoword_PTAN":  best_ptan_v if best_ptan_v is not None else "",
+                        "Pseudoword_PTAF":  round(best_ptaf_v, 4)      if best_ptaf_v is not None else "",
+                        "Pseudoword_OTAN":  pw_otan,
+                        "Pseudoword_OTAF":  round(pw_otaf_mean, 4),
+                        "PTAF_RelDiff_Pct": round(best_rdiff * 100, 2) if best_seq     else "",
+                        "OTAN_Diff":        otan_diff,
+                        "OTAF_RelDiff_Pct": round(otaf_reldiff, 2),
+                        "Status":           match_status,
+                        "Method":           "fallback",
+                    })
+
+                progress.advance(task)
 
     # ── Write output ──────────────────────────────────────────────────────
     print(f"\nWriting results → {output_path}")
