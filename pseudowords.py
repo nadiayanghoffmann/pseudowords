@@ -357,15 +357,18 @@ def fallback_candidates(target_len, all_phones, consonants, vowels,
     return candidates
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# 6.  PTAF COMPUTATION
-# ═══════════════════════════════════════════════════════════════════════════
-
-def compute_ptaf(phono_tuple, phono_to_words, all_phones):
-    """Sum CLEARPOND frequencies of all phonological neighbors (sub/del/add)."""
-    total = 0.0
-    seen  = set()
-    n     = len(phono_tuple)
+def compute_ptaf_and_ptan(
+    phono_tuple: tuple[str, ...],
+    phono_to_words: dict[tuple[str, ...], list[tuple[str, float]]],
+    all_phones: set[str],
+) -> tuple[float, int]:
+    """
+    Sum frequencies and count unique words of all phonological neighbors (sub/del/add).
+    """
+    total_freq = 0.0
+    total_count = 0
+    seen = set()
+    n = len(phono_tuple)
 
     for i in range(n):
         orig = phono_tuple[i]
@@ -376,14 +379,16 @@ def compute_ptaf(phono_tuple, phono_to_words, all_phones):
             if c not in seen:
                 seen.add(c)
                 for _, freq in phono_to_words.get(c, []):
-                    total += freq
+                    total_freq += freq
+                    total_count += 1
 
     for i in range(n):
         c = phono_tuple[:i] + phono_tuple[i+1:]
         if c not in seen:
             seen.add(c)
             for _, freq in phono_to_words.get(c, []):
-                total += freq
+                total_freq += freq
+                total_count += 1
 
     for i in range(n + 1):
         for ph in all_phones:
@@ -391,27 +396,116 @@ def compute_ptaf(phono_tuple, phono_to_words, all_phones):
             if c not in seen:
                 seen.add(c)
                 for _, freq in phono_to_words.get(c, []):
-                    total += freq
+                    total_freq += freq
+                    total_count += 1
 
-    return total
+    return total_freq, total_count
+
+
+def compute_otan_otaf(word: str, lexicon: dict[str, dict[str, Any]]) -> tuple[int, float]:
+    """
+    Compute Orthographic Total All Neighborhood Size (OTAN) and
+    Orthographic Total All Frequency Sum (OTAF sum) for a word.
+    """
+    alphabet = "abcdefghijklmnopqrstuvwxyz"
+    n = len(word)
+    candidates = set()
+
+    # Deletions
+    for i in range(n):
+        candidates.add(word[:i] + word[i+1:])
+
+    # Substitutions
+    for i in range(n):
+        orig = word[i]
+        for c in alphabet:
+            if c != orig:
+                candidates.add(word[:i] + c + word[i+1:])
+
+    # Insertions
+    for i in range(n + 1):
+        for c in alphabet:
+            candidates.add(word[:i] + c + word[i:])
+
+    candidates.discard(word)
+
+    otan = 0
+    otaf_sum = 0.0
+    for cand in candidates:
+        if cand in lexicon:
+            otan += 1
+            otaf_sum += lexicon[cand]["freq"]
+
+    return otan, otaf_sum
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 7.  LOAD INPUT WORDS
 # ═══════════════════════════════════════════════════════════════════════════
 
-def load_input(path):
-    rows = []
+from typing import TypedDict, Any
+
+class InputWord(TypedDict):
+    word: str
+    length_ortho: int
+    word_ptan: int
+    word_ptaf: float
+    word_otan: int
+    word_otaf: float
+
+
+def load_input(path: str) -> list[InputWord]:
+    rows: list[InputWord] = []
     with open(path, newline="", encoding="utf-8-sig") as f:
-        for row in csv.DictReader(f):
-            word = row.get("Word", "").strip().lower()
+        reader = csv.DictReader(f)
+        for row in reader:
+            word = row.get("Word")
+            if word is None:
+                word = row.get("")
+            if word is None and reader.fieldnames:
+                word = row.get(reader.fieldnames[0])
+            
             if not word:
                 continue
+            word_cleaned = word.strip().lower()
+
+            # Skip metadata/summary rows
+            if word_cleaned in ("mean", "t-test") or not row.get("Length (Ortho)"):
+                continue
+
             try:
-                ptaf = float(row.get("Word_PTAF", 0))
+                length_ortho = int(row.get("Length (Ortho)", 0))
             except (ValueError, TypeError):
-                ptaf = 0.0
-            rows.append({"word": word, "target_ptaf": ptaf})
+                length_ortho = 0
+
+            try:
+                word_ptan = int(row.get("Word_PTAN", 0))
+            except (ValueError, TypeError):
+                word_ptan = 0
+
+            try:
+                word_ptaf = float(row.get("Word_PTAF", 0))
+            except (ValueError, TypeError):
+                word_ptaf = 0.0
+
+            try:
+                word_otan = int(row.get("Word_OTAN", 0))
+            except (ValueError, TypeError):
+                word_otan = 0
+
+            try:
+                word_otaf = float(row.get("Word_OTAF", 0))
+            except (ValueError, TypeError):
+                word_otaf = 0.0
+
+            rows.append({
+                "word": word_cleaned,
+                "length_ortho": length_ortho,
+                "word_ptan": word_ptan,
+                "word_ptaf": word_ptaf,
+                "word_otan": word_otan,
+                "word_otaf": word_otaf,
+            })
     return rows
 
 
@@ -419,7 +513,14 @@ def load_input(path):
 # 8.  MAIN PIPELINE
 # ═══════════════════════════════════════════════════════════════════════════
 
-def run(input_path, clearpond_path, output_path, tolerance, n_candidates, seed):
+def run(
+    input_path: str,
+    clearpond_path: str,
+    output_path: str,
+    tolerance: float,
+    n_candidates: int,
+    seed: int,
+) -> None:
     rng = random.Random(seed)
 
     (lexicon, phono_to_words, all_phones,
@@ -443,7 +544,7 @@ def run(input_path, clearpond_path, output_path, tolerance, n_candidates, seed):
         w = entry["word"]
         if w in lexicon:
             db    = lexicon[w]["eptaf"]
-            inp   = entry["target_ptaf"]
+            inp   = entry["word_ptaf"]
             diff  = abs(db - inp) / max(inp, 1e-9) * 100
             flag  = "" if diff < 1 else f"  ⚠ DB has {db:.4f} ({diff:.1f}% off)"
             print(f"    {w:15s}  input={inp:.4f}  db={db:.4f}{flag}")
@@ -469,7 +570,7 @@ def run(input_path, clearpond_path, output_path, tolerance, n_candidates, seed):
 
         for i, entry in enumerate(input_words):
             word        = entry["word"]
-            target_ptaf = entry["target_ptaf"]
+            target_ptaf = entry["word_ptaf"]
             phono_len   = len(lexicon[word]["phono"]) if word in lexicon else len(word)
             source_phono = lexicon[word]["phono"]     if word in lexicon else ()
 
@@ -483,6 +584,7 @@ def run(input_path, clearpond_path, output_path, tolerance, n_candidates, seed):
                 best_pw      = None
                 best_phono   = None
                 best_ptaf_v  = None
+                best_ptan_v  = None
                 best_rdiff   = float("inf")
 
                 for pw in orth_candidates:
@@ -490,14 +592,16 @@ def run(input_path, clearpond_path, output_path, tolerance, n_candidates, seed):
                         pw, onset_map, rime_map, source_phono, vowels)
                     if not approx:
                         continue
-                    cptaf = compute_ptaf(approx, phono_to_words, all_phones)
-                    rdiff = (abs(cptaf - target_ptaf) / target_ptaf) if target_ptaf > 0 \
-                            else abs(cptaf - target_ptaf)
+                    cptaf_sum, cptan = compute_ptaf_and_ptan(approx, phono_to_words, all_phones)
+                    cptaf_mean = cptaf_sum / cptan if cptan > 0 else 0.0
+                    rdiff = (abs(cptaf_mean - target_ptaf) / target_ptaf) if target_ptaf > 0 \
+                            else abs(cptaf_mean - target_ptaf)
                     if rdiff < best_rdiff:
                         best_rdiff  = rdiff
                         best_pw     = pw
                         best_phono  = approx
-                        best_ptaf_v = cptaf
+                        best_ptaf_v = cptaf_sum
+                        best_ptan_v = cptan
 
                 if best_rdiff <= tolerance:
                     match_status = "MATCHED"
@@ -509,19 +613,41 @@ def run(input_path, clearpond_path, output_path, tolerance, n_candidates, seed):
                     tag    = "  [yellow]BEST_AVAILABLE[/yellow]"
 
                 disc_str = phono_to_disc(best_phono) if best_phono else ""
+                
+                # Compute orthographic neighborhood statistics for selected best candidate
+                if best_pw:
+                    pw_otan, pw_otaf_sum = compute_otan_otaf(best_pw, lexicon)
+                    pw_otaf_mean = pw_otaf_sum / pw_otan if pw_otan > 0 else 0.0
+                else:
+                    pw_otan, pw_otaf_sum, pw_otaf_mean = 0, 0.0, 0.0
+
+                # Compute difference statistics compared to real word
+                otan_diff = pw_otan - entry["word_otan"]
+                otaf_reldiff = (abs(pw_otaf_mean - entry["word_otaf"]) / entry["word_otaf"] * 100) \
+                               if entry["word_otaf"] > 0 else 0.0
+
+                ptaf_mean_v = (best_ptaf_v / best_ptan_v) if (best_ptaf_v is not None and best_ptan_v and best_ptan_v > 0) else 0.0
                 progress.print(
                     f"  {marker} [bold]{word:12s}[/bold] → [bold]{best_pw}[/bold]"
-                    f"  [dim][{disc_str}]  PTAF={best_ptaf_v:.4f}"
+                    f"  [dim][{disc_str}]  PTAF_mean={ptaf_mean_v:.4f}"
                     f"  diff={best_rdiff*100:.1f}%[/dim]{tag}"
                 )
 
                 results.append({
                     "Word":             word,
-                    "Word_PTAF":        target_ptaf,
+                    "Length (Ortho)":   entry["length_ortho"],
+                    "Word_PTAN":        entry["word_ptan"],
+                    "Word_PTAF":        entry["word_ptaf"],
+                    "Word_OTAN":        entry["word_otan"],
+                    "Word_OTAF":        entry["word_otaf"],
                     "Pseudoword":       best_pw     if best_pw    else "",
-                    "Pseudoword_DISC":  disc_str,
+                    "Pseudoword_PTAN":  best_ptan_v if best_ptan_v is not None else "",
                     "Pseudoword_PTAF":  round(best_ptaf_v, 4)      if best_ptaf_v is not None else "",
+                    "Pseudoword_OTAN":  pw_otan,
+                    "Pseudoword_OTAF":  round(pw_otaf_sum, 4),
                     "PTAF_RelDiff_Pct": round(best_rdiff * 100, 2) if best_pw     else "",
+                    "OTAN_Diff":        otan_diff,
+                    "OTAF_RelDiff_Pct": round(otaf_reldiff, 2),
                     "Status":           match_status,
                     "Method":           "wuggy",
                 })
@@ -536,16 +662,19 @@ def run(input_path, clearpond_path, output_path, tolerance, n_candidates, seed):
 
                 best_seq    = None
                 best_ptaf_v = None
+                best_ptan_v = None
                 best_rdiff  = float("inf")
 
                 for seq in phono_candidates:
-                    cptaf = compute_ptaf(seq, phono_to_words, all_phones)
-                    rdiff = (abs(cptaf - target_ptaf) / target_ptaf) if target_ptaf > 0 \
-                            else abs(cptaf - target_ptaf)
+                    cptaf_sum, cptan = compute_ptaf_and_ptan(seq, phono_to_words, all_phones)
+                    cptaf_mean = cptaf_sum / cptan if cptan > 0 else 0.0
+                    rdiff = (abs(cptaf_mean - target_ptaf) / target_ptaf) if target_ptaf > 0 \
+                            else abs(cptaf_mean - target_ptaf)
                     if rdiff < best_rdiff:
                         best_rdiff  = rdiff
                         best_seq    = seq
-                        best_ptaf_v = cptaf
+                        best_ptaf_v = cptaf_sum
+                        best_ptan_v = cptan
 
                 spelling = disc_to_spelling(best_seq) if best_seq else ""
                 disc_str = phono_to_disc(best_seq) if best_seq else ""
@@ -558,19 +687,40 @@ def run(input_path, clearpond_path, output_path, tolerance, n_candidates, seed):
                     marker = "[yellow]~[/yellow]"
                     tag    = "  [yellow]BEST_AVAILABLE[/yellow]  [dim]fallback[/dim]"
 
+                # Compute orthographic neighborhood statistics for fallback spelling candidate
+                if spelling:
+                    pw_otan, pw_otaf_sum = compute_otan_otaf(spelling, lexicon)
+                    pw_otaf_mean = pw_otaf_sum / pw_otan if pw_otan > 0 else 0.0
+                else:
+                    pw_otan, pw_otaf_sum, pw_otaf_mean = 0, 0.0, 0.0
+
+                # Compute difference statistics compared to real word
+                otan_diff = pw_otan - entry["word_otan"]
+                otaf_reldiff = (abs(pw_otaf_mean - entry["word_otaf"]) / entry["word_otaf"] * 100) \
+                               if entry["word_otaf"] > 0 else 0.0
+
+                ptaf_mean_v = (best_ptaf_v / best_ptan_v) if (best_ptaf_v is not None and best_ptan_v and best_ptan_v > 0) else 0.0
                 progress.print(
                     f"  {marker} [bold]{word:12s}[/bold] → [bold]{spelling}[/bold]"
-                    f"  [dim][{disc_str}]  PTAF={best_ptaf_v:.4f}"
+                    f"  [dim][{disc_str}]  PTAF_mean={ptaf_mean_v:.4f}"
                     f"  diff={best_rdiff*100:.1f}%[/dim]{tag}"
                 )
 
                 results.append({
                     "Word":             word,
-                    "Word_PTAF":        target_ptaf,
+                    "Length (Ortho)":   entry["length_ortho"],
+                    "Word_PTAN":        entry["word_ptan"],
+                    "Word_PTAF":        entry["word_ptaf"],
+                    "Word_OTAN":        entry["word_otan"],
+                    "Word_OTAF":        entry["word_otaf"],
                     "Pseudoword":       spelling,
-                    "Pseudoword_DISC":  disc_str,
+                    "Pseudoword_PTAN":  best_ptan_v if best_ptan_v is not None else "",
                     "Pseudoword_PTAF":  round(best_ptaf_v, 4)      if best_ptaf_v is not None else "",
+                    "Pseudoword_OTAN":  pw_otan,
+                    "Pseudoword_OTAF":  round(pw_otaf_sum, 4),
                     "PTAF_RelDiff_Pct": round(best_rdiff * 100, 2) if best_seq     else "",
+                    "OTAN_Diff":        otan_diff,
+                    "OTAF_RelDiff_Pct": round(otaf_reldiff, 2),
                     "Status":           match_status,
                     "Method":           "fallback",
                 })
@@ -579,8 +729,11 @@ def run(input_path, clearpond_path, output_path, tolerance, n_candidates, seed):
 
     # ── Write output ──────────────────────────────────────────────────────
     print(f"\nWriting results → {output_path}")
-    fieldnames = ["Word", "Word_PTAF", "Pseudoword", "Pseudoword_DISC",
-                  "Pseudoword_PTAF", "PTAF_RelDiff_Pct", "Status", "Method"]
+    fieldnames = [
+        "Word", "Length (Ortho)", "Word_PTAN", "Word_PTAF", "Word_OTAN", "Word_OTAF",
+        "Pseudoword", "Pseudoword_PTAN", "Pseudoword_PTAF", "Pseudoword_OTAN", "Pseudoword_OTAF",
+        "PTAF_RelDiff_Pct", "OTAN_Diff", "OTAF_RelDiff_Pct", "Status", "Method"
+    ]
     with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
