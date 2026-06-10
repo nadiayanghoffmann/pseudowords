@@ -593,9 +593,8 @@ def run(
                     if not approx:
                         continue
                     cptaf_sum, cptan = compute_ptaf_and_ptan(approx, phono_to_words, all_phones)
-                    cptaf_mean = cptaf_sum / cptan if cptan > 0 else 0.0
-                    rdiff = (abs(cptaf_mean - target_ptaf) / target_ptaf) if target_ptaf > 0 \
-                            else abs(cptaf_mean - target_ptaf)
+                    rdiff = (abs(cptaf_sum - target_ptaf) / target_ptaf) if target_ptaf > 0 \
+                            else abs(cptaf_sum - target_ptaf)
                     if rdiff < best_rdiff:
                         best_rdiff  = rdiff
                         best_pw     = pw
@@ -626,10 +625,9 @@ def run(
                 otaf_reldiff = (abs(pw_otaf_mean - entry["word_otaf"]) / entry["word_otaf"] * 100) \
                                if entry["word_otaf"] > 0 else 0.0
 
-                ptaf_mean_v = (best_ptaf_v / best_ptan_v) if (best_ptaf_v is not None and best_ptan_v and best_ptan_v > 0) else 0.0
                 progress.print(
                     f"  {marker} [bold]{word:12s}[/bold] → [bold]{best_pw}[/bold]"
-                    f"  [dim][{disc_str}]  PTAF_mean={ptaf_mean_v:.4f}"
+                    f"  [dim][{disc_str}]  PTAF={best_ptaf_v:.4f}"
                     f"  diff={best_rdiff*100:.1f}%[/dim]{tag}"
                 )
 
@@ -644,7 +642,7 @@ def run(
                     "Pseudoword_PTAN":  best_ptan_v if best_ptan_v is not None else "",
                     "Pseudoword_PTAF":  round(best_ptaf_v, 4)      if best_ptaf_v is not None else "",
                     "Pseudoword_OTAN":  pw_otan,
-                    "Pseudoword_OTAF":  round(pw_otaf_sum, 4),
+                    "Pseudoword_OTAF":  round(pw_otaf_mean, 4),
                     "PTAF_RelDiff_Pct": round(best_rdiff * 100, 2) if best_pw     else "",
                     "OTAN_Diff":        otan_diff,
                     "OTAF_RelDiff_Pct": round(otaf_reldiff, 2),
@@ -667,9 +665,8 @@ def run(
 
                 for seq in phono_candidates:
                     cptaf_sum, cptan = compute_ptaf_and_ptan(seq, phono_to_words, all_phones)
-                    cptaf_mean = cptaf_sum / cptan if cptan > 0 else 0.0
-                    rdiff = (abs(cptaf_mean - target_ptaf) / target_ptaf) if target_ptaf > 0 \
-                            else abs(cptaf_mean - target_ptaf)
+                    rdiff = (abs(cptaf_sum - target_ptaf) / target_ptaf) if target_ptaf > 0 \
+                            else abs(cptaf_sum - target_ptaf)
                     if rdiff < best_rdiff:
                         best_rdiff  = rdiff
                         best_seq    = seq
@@ -699,10 +696,9 @@ def run(
                 otaf_reldiff = (abs(pw_otaf_mean - entry["word_otaf"]) / entry["word_otaf"] * 100) \
                                if entry["word_otaf"] > 0 else 0.0
 
-                ptaf_mean_v = (best_ptaf_v / best_ptan_v) if (best_ptaf_v is not None and best_ptan_v and best_ptan_v > 0) else 0.0
                 progress.print(
                     f"  {marker} [bold]{word:12s}[/bold] → [bold]{spelling}[/bold]"
-                    f"  [dim][{disc_str}]  PTAF_mean={ptaf_mean_v:.4f}"
+                    f"  [dim][{disc_str}]  PTAF={best_ptaf_v:.4f}"
                     f"  diff={best_rdiff*100:.1f}%[/dim]{tag}"
                 )
 
@@ -717,7 +713,7 @@ def run(
                     "Pseudoword_PTAN":  best_ptan_v if best_ptan_v is not None else "",
                     "Pseudoword_PTAF":  round(best_ptaf_v, 4)      if best_ptaf_v is not None else "",
                     "Pseudoword_OTAN":  pw_otan,
-                    "Pseudoword_OTAF":  round(pw_otaf_sum, 4),
+                    "Pseudoword_OTAF":  round(pw_otaf_mean, 4),
                     "PTAF_RelDiff_Pct": round(best_rdiff * 100, 2) if best_seq     else "",
                     "OTAN_Diff":        otan_diff,
                     "OTAF_RelDiff_Pct": round(otaf_reldiff, 2),
