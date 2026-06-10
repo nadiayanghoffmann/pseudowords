@@ -104,6 +104,7 @@ The output CSV contains a comprehensive set of matched results and statistics:
 | `Word_OTAN` | `int` | Real word orthographic neighborhood size |
 | `Word_OTAF` | `float` | Real word precalculated target OTAF mean |
 | `Pseudoword` | `str` | Generated pseudoword (orthographic, readable) |
+| `Consonant_Pseudoword` | `str` | Random consonant-only pseudoword of the same length |
 | `Pseudoword_PTAN` | `int` | Computed phonological neighborhood size of the pseudoword |
 | `Pseudoword_PTAF` | `float` | Computed PTAF frequency sum of the pseudoword |
 | `Pseudoword_OTAN` | `int` | Computed Coltheart's distance-1 orthographic neighborhood size of the pseudoword |

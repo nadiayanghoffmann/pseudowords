@@ -581,6 +581,10 @@ def run(
             status_msg = _WITTY_STATUSES[i % len(_WITTY_STATUSES)]
             progress.update(task, description=f"{word} — {status_msg}")
 
+            # Generate a random consonant-only pseudoword of the same length
+            L = entry["length_ortho"] if entry["length_ortho"] > 0 else len(word)
+            consonant_pseudoword = "".join(rng.choices("bcdfghjklmnpqrstvwxyz", k=L))
+
             existing_pw = entry.get("pseudoword", "")
 
             if existing_pw:
@@ -634,6 +638,7 @@ def run(
                     "Word_OTAN":        entry["word_otan"],
                     "Word_OTAF":        entry["word_otaf"],
                     "Pseudoword":       best_pw,
+                    "Consonant_Pseudoword": consonant_pseudoword,
                     "Pseudoword_PTAN":  best_ptan_v,
                     "Pseudoword_PTAF":  round(best_ptaf_v, 4),
                     "Pseudoword_OTAN":  pw_otan,
@@ -709,6 +714,7 @@ def run(
                         "Word_OTAN":        entry["word_otan"],
                         "Word_OTAF":        entry["word_otaf"],
                         "Pseudoword":       best_pw     if best_pw    else "",
+                        "Consonant_Pseudoword": consonant_pseudoword,
                         "Pseudoword_PTAN":  best_ptan_v if best_ptan_v is not None else "",
                         "Pseudoword_PTAF":  round(best_ptaf_v, 4)      if best_ptaf_v is not None else "",
                         "Pseudoword_OTAN":  pw_otan,
@@ -780,6 +786,7 @@ def run(
                         "Word_OTAN":        entry["word_otan"],
                         "Word_OTAF":        entry["word_otaf"],
                         "Pseudoword":       spelling,
+                        "Consonant_Pseudoword": consonant_pseudoword,
                         "Pseudoword_PTAN":  best_ptan_v if best_ptan_v is not None else "",
                         "Pseudoword_PTAF":  round(best_ptaf_v, 4)      if best_ptaf_v is not None else "",
                         "Pseudoword_OTAN":  pw_otan,
@@ -797,7 +804,7 @@ def run(
     print(f"\nWriting results → {output_path}")
     fieldnames = [
         "Word", "Length (Ortho)", "Word_PTAN", "Word_PTAF", "Word_OTAN", "Word_OTAF",
-        "Pseudoword", "Pseudoword_PTAN", "Pseudoword_PTAF", "Pseudoword_OTAN", "Pseudoword_OTAF",
+        "Pseudoword", "Consonant_Pseudoword", "Pseudoword_PTAN", "Pseudoword_PTAF", "Pseudoword_OTAN", "Pseudoword_OTAF",
         "PTAF_RelDiff_Pct", "OTAN_Diff", "OTAF_RelDiff_Pct", "Status", "Method"
     ]
     with open(output_path, "w", newline="", encoding="utf-8") as f:
