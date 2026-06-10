@@ -153,14 +153,14 @@ These are used to approximate the phoneme sequence of any Wuggy pseudoword.
 ### 5. Deterministic Scoring Logic
 
 To remain deterministic and compatible with the original matching results:
-- **PTAF Matching:** The script computes `cptaf_sum` (the frequency sum of all phonological neighbors at edit distance = 1) and compares it directly with the precalculated CLEARPOND database mean `target_ptaf` (`ePTAF`). While mathematically counter-intuitive, this direct sum-to-mean matching logic ensures original matches (like `chair` $\rightarrow$ `charp` and `stone` $\rightarrow$ `stoms`) are produced.
+- **PTAF Matching:** The script computes `cptaf_sum` (the frequency sum of all phonological neighbors at edit distance = 1) and compares it directly with the precalculated CLEARPOND database mean `target_ptaf` (`ePTAF`). While mathematically counter-intuitive, this direct sum-to-mean matching logic ensures original matches (like `chair` → `charp` and `stone` → `stoms`) are produced.
 - **PTAF Output Values:** `Pseudoword_PTAF` writes the frequency sum, and `PTAF_RelDiff_Pct` represents the direct relative difference between this sum and the target.
 
 ### 6. Orthographic Neighborhood Calculations
 
 For the selected best pseudoword, orthographic statistics are computed dynamically using Coltheart's distance-1 definition:
 - **Orthographic Neighborhood Size (`Pseudoword_OTAN`):** Count of unique real CLEARPOND words obtained by exactly one single-letter deletion, substitution, or insertion.
-- **Orthographic Neighborhood Frequency (`Pseudoword_OTAF`):** The average (mean) frequency of those orthographic neighbors, computed as $\text{OTAF\_sum} / \text{OTAN}$ to remain mathematically consistent with the database precalculated mean `Word_OTAF`.
+- **Orthographic Neighborhood Frequency (`Pseudoword_OTAF`):** The average (mean) frequency of those orthographic neighbors, computed as `OTAF_sum / OTAN` to remain mathematically consistent with the database precalculated mean `Word_OTAF`.
 - **OTAN Difference (`OTAN_Diff`):** The direct integer difference `Pseudoword_OTAN - Word_OTAN`.
 - **OTAF Relative Difference (`OTAF_RelDiff_Pct`):** Relative difference in percent between the pseudoword and real word's orthographic mean frequencies.
 
