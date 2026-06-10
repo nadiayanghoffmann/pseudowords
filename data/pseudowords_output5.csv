@@ -1,0 +1,3 @@
+Word,Length (Ortho),Word_PTAN,Word_PTAF,Word_OTAN,Word_OTAF,Pseudoword,Consonant_Pseudoword,Pseudoword_PTAN,Pseudoword_PTAF,Pseudoword_OTAN,Pseudoword_OTAF,PTAF_RelDiff_Pct,OTAN_Diff,OTAF_RelDiff_Pct,Status,Method
+lobster,7,2,1.4902,2,1.4902,loppler,rbhgtsx,1,0.8235,1,0.8235,44.74,-1,44.74,BEST_AVAILABLE,wuggy
+trumpet,7,2,0.66667,2,0.66667,chimpet,clbgnbg,1,0.902,0,0.0,35.29,-2,100.0,BEST_AVAILABLE,wuggy

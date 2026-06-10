@@ -833,7 +833,7 @@ if __name__ == "__main__":
                         help="Relative PTAF tolerance. Default: 0.20 (20%%).")
     parser.add_argument("--candidates", type=int,   default=200,
                         help="Wuggy candidates per word (default 200).")
-    parser.add_argument("--seed",       type=int,   default=42)
+    parser.add_argument("--seed",       type=int,   default=23)
     args = parser.parse_args()
 
     run(args.input, args.clearpond, args.output,
