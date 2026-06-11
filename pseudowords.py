@@ -581,9 +581,17 @@ def run(
             status_msg = _WITTY_STATUSES[i % len(_WITTY_STATUSES)]
             progress.update(task, description=f"{word} — {status_msg}")
 
-            # Generate a random consonant-only pseudoword of the same length
+            # Generate a random consonant-only pseudoword of the same length, avoiding same consecutive consonants
             L = entry["length_ortho"] if entry["length_ortho"] > 0 else len(word)
-            consonant_pseudoword = "".join(rng.choices("bcdfghjklmnpqrstvwxyz", k=L))
+            consonants_pool = "bcdfghjklmnpqrstvwxyz"
+            chars = []
+            for _ in range(L):
+                if not chars:
+                    next_char = rng.choice(consonants_pool)
+                else:
+                    next_char = rng.choice([c for c in consonants_pool if c != chars[-1]])
+                chars.append(next_char)
+            consonant_pseudoword = "".join(chars)
 
             existing_pw = entry.get("pseudoword", "")
 
