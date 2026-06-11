@@ -18,9 +18,12 @@ Pipeline
    candidates per real word.  Wuggy guarantees English-like letter patterns.
 
 3. For each candidate, approximate its phoneme sequence by looking up its
-   orthographic onset and rime in the CLEARPOND-derived maps.
+   orthographic onset and rime in the CLEARPOND-derived maps.  Candidates
+   whose onset or rime is not attested in CLEARPOND are skipped (existing
+   pseudowords from the input are reported as NO_TRANSCRIPTION instead).
 
-4. Compute PTAF for that phoneme sequence against CLEARPOND neighbors.
+4. Compute PTAF (mean frequency of all phonological neighbors, the same
+   convention as CLEARPOND's ePTAF) for that phoneme sequence.
 
 5. Pick the candidate with PTAF closest to the target; accept if within
    TOLERANCE.
@@ -33,9 +36,9 @@ USAGE
         --output   results.csv
 
     Optional flags:
-        --tolerance   0.10     # relative PTAF tolerance (default 10%)
-        --candidates  30       # Wuggy candidates per word (default 30)
-        --seed        42       # random seed (only affects fallback generator)
+        --tolerance   0.20     # relative PTAF tolerance (default 20%)
+        --candidates  1000     # Wuggy candidates per word (default 1000)
+        --seed        23       # random seed (only affects fallback generator)
 """
 
 import argparse
@@ -217,26 +220,22 @@ def build_orth_phono_maps(lexicon, vowel_phones):
     return onset_map, rime_map
 
 
-def pseudoword_to_phono(pseudoword, onset_map, rime_map, fallback_phono, vowel_phones):
+def pseudoword_to_phono(pseudoword, onset_map, rime_map):
     """
-    Approximate the phoneme sequence for an orthographic pseudoword.
+    Approximate the phoneme sequence for an orthographic pseudoword via exact
+    onset/rime lookup in the CLEARPOND-derived maps.
 
-    Onset: exact lookup in onset_map; fall back to source word's onset.
-    Rime:  exact lookup in rime_map; fall back to source word's rime.
-
-    The fallback is intentional: Wuggy pseudowords often have rimes not in
-    CLEARPOND (e.g. "igric"), and falling back to the source word's rime
-    keeps the phoneme count and neighborhood structure plausible.
+    Returns None if either part is not attested in CLEARPOND.  No fallback is
+    attempted: substituting the source word's onset/rime can reconstruct the
+    source word's own phonology, which would silently score the real word
+    instead of the pseudoword.
     """
     orth_onset, orth_rime = _split_orth(pseudoword)
 
     phono_onset = onset_map.get(orth_onset)
-    if phono_onset is None:
-        phono_onset, _ = _split_phono(fallback_phono, vowel_phones)
-
-    phono_rime = rime_map.get(orth_rime)
-    if phono_rime is None:
-        _, phono_rime = _split_phono(fallback_phono, vowel_phones)
+    phono_rime  = rime_map.get(orth_rime)
+    if phono_onset is None or phono_rime is None:
+        return None
 
     return phono_onset + phono_rime
 
@@ -576,7 +575,6 @@ def run(
             word        = entry["word"]
             target_ptaf = entry["word_ptaf"]
             phono_len   = len(lexicon[word]["phono"]) if word in lexicon else len(word)
-            source_phono = lexicon[word]["phono"]     if word in lexicon else ()
 
             status_msg = _WITTY_STATUSES[i % len(_WITTY_STATUSES)]
             progress.update(task, description=f"{word} — {status_msg}")
@@ -598,33 +596,37 @@ def run(
             if existing_pw:
                 # ── Use existing pseudoword ────────────────────────────────
                 best_pw = existing_pw
-                approx = pseudoword_to_phono(
-                    best_pw, onset_map, rime_map, source_phono, vowels)
-                
-                if approx:
+                approx = pseudoword_to_phono(best_pw, onset_map, rime_map)
+
+                if approx is not None:
                     cptaf_sum, cptan = compute_ptaf_and_ptan(approx, phono_to_words, all_phones)
-                    best_ptaf_v = cptaf_sum
+                    best_ptaf_v = cptaf_sum / cptan if cptan > 0 else 0.0
                     best_ptan_v = cptan
                     best_phono = approx
-                    best_rdiff = (abs(cptaf_sum - target_ptaf) / target_ptaf) if target_ptaf > 0 \
-                                 else abs(cptaf_sum - target_ptaf)
-                else:
-                    best_ptaf_v = 0.0
-                    best_ptan_v = 0
-                    best_phono = ()
-                    best_rdiff = 0.0
+                    best_rdiff = (abs(best_ptaf_v - target_ptaf) / target_ptaf) if target_ptaf > 0 \
+                                 else abs(best_ptaf_v - target_ptaf)
 
-                if best_rdiff <= tolerance:
-                    match_status = "MATCHED"
-                    marker = "[green]✓[/green]"
-                    tag    = "  [cyan]existing[/cyan]"
+                    if best_rdiff <= tolerance:
+                        match_status = "MATCHED"
+                        marker = "[green]✓[/green]"
+                        tag    = "  [cyan]existing[/cyan]"
+                    else:
+                        match_status = "BEST_AVAILABLE"
+                        marker = "[yellow]~[/yellow]"
+                        tag    = "  [cyan]existing[/cyan] [yellow]BEST_AVAILABLE[/yellow]"
+                    ptaf_str = f"PTAF={best_ptaf_v:.4f}  diff={best_rdiff*100:.1f}%"
                 else:
-                    match_status = "BEST_AVAILABLE"
-                    marker = "[yellow]~[/yellow]"
-                    tag    = "  [cyan]existing[/cyan] [yellow]BEST_AVAILABLE[/yellow]"
+                    best_ptaf_v = None
+                    best_ptan_v = None
+                    best_phono = ()
+                    best_rdiff = None
+                    match_status = "NO_TRANSCRIPTION"
+                    marker = "[red]✗[/red]"
+                    tag    = "  [cyan]existing[/cyan] [red]NO_TRANSCRIPTION[/red]"
+                    ptaf_str = "onset/rime not in CLEARPOND"
 
                 disc_str = phono_to_disc(best_phono) if best_phono else ""
-                
+
                 pw_otan, pw_otaf_sum = compute_otan_otaf(best_pw, lexicon)
                 pw_otaf_mean = pw_otaf_sum / pw_otan if pw_otan > 0 else 0.0
 
@@ -634,8 +636,7 @@ def run(
 
                 progress.print(
                     f"  {marker} [bold]{word:12s}[/bold] → [bold]{best_pw}[/bold] (existing)"
-                    f"  [dim][{disc_str}]  PTAF={best_ptaf_v:.4f}"
-                    f"  diff={best_rdiff*100:.1f}%[/dim]{tag}"
+                    f"  [dim][{disc_str}]  {ptaf_str}[/dim]{tag}"
                 )
 
                 results.append({
@@ -647,11 +648,11 @@ def run(
                     "Word_OTAF":        entry["word_otaf"],
                     "Pseudoword":       best_pw,
                     "Consonant_Pseudoword": consonant_pseudoword,
-                    "Pseudoword_PTAN":  best_ptan_v,
-                    "Pseudoword_PTAF":  round(best_ptaf_v, 4),
+                    "Pseudoword_PTAN":  best_ptan_v if best_ptan_v is not None else "",
+                    "Pseudoword_PTAF":  round(best_ptaf_v, 4)      if best_ptaf_v is not None else "",
                     "Pseudoword_OTAN":  pw_otan,
                     "Pseudoword_OTAF":  round(pw_otaf_mean, 4),
-                    "PTAF_RelDiff_Pct": round(best_rdiff * 100, 2),
+                    "PTAF_RelDiff_Pct": round(best_rdiff * 100, 2) if best_rdiff is not None else "",
                     "OTAN_Diff":        otan_diff,
                     "OTAF_RelDiff_Pct": round(otaf_reldiff, 2),
                     "Status":           match_status,
@@ -661,30 +662,32 @@ def run(
 
             else:
                 # ── Try Wuggy first ───────────────────────────────────────────
+                # Candidates whose onset/rime is not in CLEARPOND are skipped;
+                # if none survives, fall through to the phoneme-mutation fallback.
                 orth_candidates = wuggy_candidates(word, wuggy_gen, n_candidates, lexicon_words)
 
-                if orth_candidates:
-                    best_pw      = None
-                    best_phono   = None
-                    best_ptaf_v  = None
-                    best_ptan_v  = None
-                    best_rdiff   = float("inf")
+                best_pw      = None
+                best_phono   = None
+                best_ptaf_v  = None
+                best_ptan_v  = None
+                best_rdiff   = float("inf")
 
-                    for pw in orth_candidates:
-                        approx = pseudoword_to_phono(
-                            pw, onset_map, rime_map, source_phono, vowels)
-                        if not approx:
-                            continue
-                        cptaf_sum, cptan = compute_ptaf_and_ptan(approx, phono_to_words, all_phones)
-                        rdiff = (abs(cptaf_sum - target_ptaf) / target_ptaf) if target_ptaf > 0 \
-                                else abs(cptaf_sum - target_ptaf)
-                        if rdiff < best_rdiff:
-                            best_rdiff  = rdiff
-                            best_pw     = pw
-                            best_phono  = approx
-                            best_ptaf_v = cptaf_sum
-                            best_ptan_v = cptan
+                for pw in (orth_candidates or []):
+                    approx = pseudoword_to_phono(pw, onset_map, rime_map)
+                    if approx is None:
+                        continue
+                    cptaf_sum, cptan = compute_ptaf_and_ptan(approx, phono_to_words, all_phones)
+                    cptaf_mean = cptaf_sum / cptan if cptan > 0 else 0.0
+                    rdiff = (abs(cptaf_mean - target_ptaf) / target_ptaf) if target_ptaf > 0 \
+                            else abs(cptaf_mean - target_ptaf)
+                    if rdiff < best_rdiff:
+                        best_rdiff  = rdiff
+                        best_pw     = pw
+                        best_phono  = approx
+                        best_ptaf_v = cptaf_mean
+                        best_ptan_v = cptan
 
+                if best_pw is not None:
                     if best_rdiff <= tolerance:
                         match_status = "MATCHED"
                         marker = "[green]✓[/green]"
@@ -749,12 +752,13 @@ def run(
 
                     for seq in phono_candidates:
                         cptaf_sum, cptan = compute_ptaf_and_ptan(seq, phono_to_words, all_phones)
-                        rdiff = (abs(cptaf_sum - target_ptaf) / target_ptaf) if target_ptaf > 0 \
-                                else abs(cptaf_sum - target_ptaf)
+                        cptaf_mean = cptaf_sum / cptan if cptan > 0 else 0.0
+                        rdiff = (abs(cptaf_mean - target_ptaf) / target_ptaf) if target_ptaf > 0 \
+                                else abs(cptaf_mean - target_ptaf)
                         if rdiff < best_rdiff:
                             best_rdiff  = rdiff
                             best_seq    = seq
-                            best_ptaf_v = cptaf_sum
+                            best_ptaf_v = cptaf_mean
                             best_ptan_v = cptan
 
                     spelling = disc_to_spelling(best_seq) if best_seq else ""
@@ -839,8 +843,8 @@ if __name__ == "__main__":
     parser.add_argument("--output",     default="pseudowords_output.csv")
     parser.add_argument("--tolerance",  type=float, default=0.20,
                         help="Relative PTAF tolerance. Default: 0.20 (20%%).")
-    parser.add_argument("--candidates", type=int,   default=200,
-                        help="Wuggy candidates per word (default 200).")
+    parser.add_argument("--candidates", type=int,   default=1000,
+                        help="Wuggy candidates per word (default 1000).")
     parser.add_argument("--seed",       type=int,   default=23)
     args = parser.parse_args()
 

@@ -1,0 +1,55 @@
+,,,Number of phonological neighbors,Average frequency of the phonological neighbors,,,Number of phonological neighbors,Sum of the frequencies of all neighbors,Average frequency of the phonological neighbors (TotalNF/TotalND) = Average frequency of the phonological neighbors
+Word,Length (Phono),PTAN,PTAF,,Pseudoword,Length,TotalND,TotalNF,PTAF
+koala,5,1,5.5294,,kaate,5,1,7.569,7.569
+cigar,4,1,6.6667,,cisor,5,1,0.588,0.588
+nylon,5,2,0.89216,,nukon,5,1,0.451,0.451
+cloth,4,5,2.4784,,clonx,5,1,2.51,2.51
+Tulip,6,1,1.1373,,tutim,5,0,0,0
+flame,4,9,14.2331,,flard,5,2,2.951,1.4755
+mango,5,3,2.183,,ranjo,5,1,1.627,1.627
+dagger,4,5,1.5529,,dorger,6,2,0.941,0.4705
+bonnet,5,1,0.76471,,bendet,6,2,2.304,1.152
+brush,4,6,9.0131,,snush,5,2,1.598,0.799
+token,5,3,47.0784,,losen,5,6,35.556,5.926
+model,4,10,11.4412,,povel,5,2,5.274,2.637
+parlor,4,6,4.6046,,goonv,5,2,2.314,1.157
+fiber,4,5,46.7059,,nighoof,7,0,0,0
+violin,6,1,1.0588,,vionad,6,0,0,0
+pellet,5,3,0.6732,,rillet,6,2,0.471,0.2355
+beacon,5,5,5.7647,,paecon,6,0,0,0
+fabric,6,1,0.7451,,faydic,6,0,0,0
+Dragon,6,1,4.549,,drobon,6,0,0,0
+clinic,6,2,1.951,,swonic,6,1,1.941,1.941
+helmet,6,1,2.0196,,hidmet,6,0,0,0
+jungle,5,3,2.4052,,jargle,6,1,0.588,0.588
+marble,4,7,8.9132,,pamble,6,2,4.775,2.3875
+signal,6,3,3.4837,,sildal,6,0,0,0
+ticket,5,4,11.7794,,lucket,6,3,4.216,1.405333333
+hazard,5,3,1.1961,,hacate,6,2,0.755,0.3775
+napkin,6,1,2.5686,,nadcin,6,0,0,0
+manual,6,2,3.902,,munyac,6,0,0,0
+lizard,5,6,2.5229,,ticard,6,1,1.529,1.529
+kitten,5,8,16.8088,,watten,6,2,0.441,0.2205
+blanket,7,1,5.098,,blarhet,7,0,0,0
+journal,4,5,23.8824,,veirnal,7,0,0,0
+monster,6,4,6.2892,,ronquer,7,1,4.98,4.98
+picture,5,4,18.6618,,secture,7,2,17.402,8.701
+machine,5,1,13.8627,,machent,7,0,0,0
+village,5,1,0.60784,,vellays,7,0,0,0
+lobster,6,2,1.4902,,lamster,7,1,2.137,2.137
+theater,4,2,1.1667,,gairvow,7,0,0,0
+kitchen,5,2,2.7255,,kinched,7,1,2.706,2.706
+mustard,6,3,1.3725,,mostate,7,0,0,0
+cartoon,5,2,2.3529,,samtoon,7,0,0,0
+surface,5,2,2.6765,,surfole,7,0,0,0
+network,6,1,2.1176,,nedworn,7,0,0,0
+dolphin,6,1,3.9608,,pelphin,7,0,0,0
+trumpet,7,2,0.66667,,chimpet,7,0,0,0
+festival,7,2,1.3137,,fellipal,8,0,0,0
+perfume,6,2,0.61765,,perpame,7,0,0,0
+mansion,6,2,30.0882,,pangion,7,0,0,0
+Biscuit,6,1,3.2745,,cisbuit,7,0,0,0
+monument,8,1,0.90196,,menucant,8,0,0,0
+MEAN ,5.3,3,6.9549898,,,6.24,0.84,2.11248,1.071406667
+T-test ,,0.00000003210925055,0.0001490077275,,,,,,
+Word,Length (Phono),PTAN,PTAF,,Pseudoword,Length,TotalND,TotalNF,PTAF

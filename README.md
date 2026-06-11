@@ -74,8 +74,8 @@ The script reads the clean input CSV file and writes its output to a separate ou
     --clearpond  data/englishCPdatabase2/englishCPdatabase2.txt \
     --output     data/pseudowords_output.csv \
     --tolerance  0.20 \
-    --candidates 200 \
-    --seed       42
+    --candidates 1000 \
+    --seed       23
 ```
 
 ### Options
@@ -86,8 +86,8 @@ The script reads the clean input CSV file and writes its output to a separate ou
 | `--clearpond`  | *(required)* | Path to `englishCPdatabase2.txt` |
 | `--output`     | `pseudowords_output.csv` | Output CSV path (separate from the input file, e.g. `data/pseudowords_output.csv`) |
 | `--tolerance`  | `0.20` | Maximum allowed relative PTAF difference (0.20 = 20%) |
-| `--candidates` | `200` | Number of Wuggy pseudoword candidates evaluated per word |
-| `--seed`       | `42` | Random seed (affects fallback generator only) |
+| `--candidates` | `1000` | Number of Wuggy pseudoword candidates evaluated per word |
+| `--seed`       | `23` | Random seed (affects fallback generator only) |
 
 ---
 
@@ -106,14 +106,14 @@ The output CSV contains a comprehensive set of matched results and statistics:
 | `Pseudoword` | `str` | Generated pseudoword (orthographic, readable) |
 | `Consonant_Pseudoword` | `str` | Random consonant-only pseudoword of the same length |
 | `Pseudoword_PTAN` | `int` | Computed phonological neighborhood size of the pseudoword |
-| `Pseudoword_PTAF` | `float` | Computed PTAF frequency sum of the pseudoword |
+| `Pseudoword_PTAF` | `float` | Computed phonological neighborhood frequency **mean** of the pseudoword (same convention as CLEARPOND's `ePTAF`) |
 | `Pseudoword_OTAN` | `int` | Computed Coltheart's distance-1 orthographic neighborhood size of the pseudoword |
 | `Pseudoword_OTAF` | `float` | Computed orthographic neighborhood frequency **mean** of the pseudoword |
-| `PTAF_RelDiff_Pct` | `float` | Relative PTAF difference in percent between the pseudoword PTAF sum and the real word PTAF mean (how they are deterministically matched) |
+| `PTAF_RelDiff_Pct` | `float` | Relative difference in percent between the pseudoword and real word PTAF means (the matching criterion) |
 | `OTAN_Diff` | `int` | Direct integer difference in orthographic neighborhood size: `Pseudoword_OTAN - Word_OTAN` |
 | `OTAF_RelDiff_Pct` | `float` | Relative difference in percent between the pseudoword OTAF mean and the real word OTAF mean |
-| `Status` | `str` | `MATCHED` (within tolerance) or `BEST_AVAILABLE` (closest match found, exceeds tolerance) |
-| `Method` | `str` | `wuggy` (Wuggy-generated) or `fallback` (phoneme-mutation fallback) |
+| `Status` | `str` | `MATCHED` (within tolerance), `BEST_AVAILABLE` (closest match found, exceeds tolerance), or `NO_TRANSCRIPTION` (existing pseudoword whose onset/rime is not attested in CLEARPOND, so no phonological statistics could be computed) |
+| `Method` | `str` | `existing` (pseudoword taken from the input), `wuggy` (Wuggy-generated), or `fallback` (phoneme-mutation fallback) |
 
 ---
 
@@ -144,18 +144,22 @@ onset_map["ch"] → ('tS',)
 rime_map["arp"]  → ('Ar', 'p')
 ```
 These are used to approximate the phoneme sequence of any Wuggy pseudoword.
+If a pseudoword's onset or rime is not attested in CLEARPOND, no transcription
+is attempted: generated candidates are skipped, and existing pseudowords from
+the input are reported with `Status = NO_TRANSCRIPTION`. (Guessing — e.g.
+reusing the source word's onset/rime — could reconstruct the source word's own
+phonology and silently score the real word instead of the pseudoword.)
 
 ### 4. Generate candidates with Wuggy
 
 [Wuggy](https://github.com/WuggyCode/wuggy) generates candidate pseudowords using **subsyllabic substitution** (onset, nucleus, coda), guaranteeing English-like phonotactics and non-existence in the English lexicon.
 
-**Fallback:** If Wuggy cannot handle a word, the script falls back to mutating 1–3 phonemes of a same-length real-word template while preserving consonant/vowel category at each mutated position.
+**Fallback:** If Wuggy cannot handle a word, or none of its candidates has a transcribable onset/rime, the script falls back to mutating 1–3 phonemes of a same-length real-word template while preserving consonant/vowel category at each mutated position.
 
-### 5. Deterministic Scoring Logic
+### 5. Scoring & Matching
 
-To remain deterministic and compatible with the original matching results:
-- **PTAF Matching:** The script computes `cptaf_sum` (the frequency sum of all phonological neighbors at edit distance = 1) and compares it directly with the precalculated CLEARPOND database mean `target_ptaf` (`ePTAF`). While mathematically counter-intuitive, this direct sum-to-mean matching logic ensures original matches (like `chair` → `charp` and `stone` → `stoms`) are produced.
-- **PTAF Output Values:** `Pseudoword_PTAF` writes the frequency sum, and `PTAF_RelDiff_Pct` represents the direct relative difference between this sum and the target.
+- **PTAF Matching:** For each candidate, the script enumerates all phonological neighbors at edit distance 1 (one-phoneme substitution, deletion, or insertion) and computes `Pseudoword_PTAF` as the **mean** frequency of those neighbors (`frequency sum ÷ neighbor count`) — the same convention as CLEARPOND's precalculated `ePTAF`, so the pseudoword statistic is directly comparable to the `Word_PTAF` target. The candidate whose mean lies closest to the target wins, and is accepted as `MATCHED` if the relative difference is within `--tolerance`.
+- **PTAF Output Values:** `Pseudoword_PTAF` writes the neighbor-frequency mean, and `PTAF_RelDiff_Pct` is the relative difference between this mean and the target mean.
 
 ### 6. Orthographic Neighborhood Calculations
 
