@@ -47,11 +47,17 @@ import os
 import random
 import sys
 from collections import Counter, defaultdict
+from typing import Any, TypedDict
 
 from rich.console import Console
 from rich.progress import (
-    BarColumn, Progress, SpinnerColumn, TaskProgressColumn,
-    TextColumn, TimeElapsedColumn, TimeRemainingColumn,
+    BarColumn,
+    Progress,
+    SpinnerColumn,
+    TaskProgressColumn,
+    TextColumn,
+    TimeElapsedColumn,
+    TimeRemainingColumn,
 )
 
 _console = Console()
@@ -442,7 +448,6 @@ def compute_otan_otaf(word: str, lexicon: dict[str, dict[str, Any]]) -> tuple[in
 # 7.  LOAD INPUT WORDS
 # ═══════════════════════════════════════════════════════════════════════════
 
-from typing import TypedDict, Any
 
 class InputWord(TypedDict):
     word: str
@@ -542,7 +547,7 @@ def run(
 
     input_words = load_input(input_path)
 
-    print(f"\n[4/5] Verifying real-word PTAFs against CLEARPOND …")
+    print("\n[4/5] Verifying real-word PTAFs against CLEARPOND …")
     for entry in input_words:
         w = entry["word"]
         if w in lexicon:
@@ -554,7 +559,7 @@ def run(
         else:
             print(f"    {w:15s}  ⚠ NOT FOUND in CLEARPOND")
 
-    print(f"\n[5/5] Generating & scoring pseudowords …")
+    print("\n[5/5] Generating & scoring pseudowords …")
     print(f"      Tolerance={tolerance*100:.0f}%  |  Wuggy candidates={n_candidates}  |  Seed={seed}\n")
 
     results = []
