@@ -1,0 +1,9 @@
+Word,Length (Ortho),Word_PTAN,Word_PTAF,Word_OTAN,Word_OTAF,Pseudoword,Consonant_Pseudoword,Pseudoword_PTAN,Pseudoword_PTAF,Pseudoword_OTAN,Pseudoword_OTAF,PTAF_RelDiff_Pct,OTAN_Diff,OTAF_RelDiff_Pct,Status,Method
+cloak,5,17,21.7232,2,29.8922,groak,mdbym,11,21.6898,2,1.0392,0.15,0,96.52,MATCHED,wuggy
+creek,5,18,8.9804,6,5.6111,criek,rqwpg,18,8.9804,4,7.6716,0.0,-2,36.72,MATCHED,wuggy
+crepe,5,7,13.1541,4,1.0,brepe,jmtbl,8,12.9927,1,0.8235,1.23,-3,17.65,MATCHED,wuggy
+crown,5,11,14.9322,9,17.6906,crome,ysbgd,12,13.4657,5,646.5804,9.82,-4,3554.94,MATCHED,wuggy
+pearl,5,30,35.051,5,5.8039,peard,trbwr,27,34.6042,5,83.6667,1.27,0,1341.56,MATCHED,wuggy
+perch,5,19,12.4221,2,7.9902,pirch,pckcy,19,12.4221,5,6.7608,0.0,3,15.39,MATCHED,wuggy
+porch,5,15,7.2052,4,2.2402,zorch,phzjq,2,7.304,2,7.304,1.37,-2,226.04,MATCHED,wuggy
+tulip,5,1,1.1373,1,1.1373,tunup,xpymp,1,1.1569,1,1.1569,1.72,0,1.72,MATCHED,wuggy
