@@ -171,6 +171,60 @@ For the selected best pseudoword, orthographic statistics are computed dynamical
 
 ---
 
+## Second Pseudoword Generator (`second_pseudowords.py`)
+
+For designs that need a matched pair of pseudowords per real word (e.g. an
+orthographic-neighbor manipulation), `second_pseudowords.py` takes the output
+of the main pipeline and, for each `(Word, Pseudoword)` pair, generates a
+**second pseudoword** that:
+
+- differs from the first pseudoword by exactly one letter (occasionally two,
+  only if no valid one-letter neighbor exists)
+- is phonotactically plausible (its onset/rime are attested in CLEARPOND —
+  the same check used for Wuggy candidates)
+- is not a real English word (checked against the CLEARPOND lexicon)
+- is not identical to the source word, the first pseudoword, or any other
+  second pseudoword already chosen in the run
+
+Among valid one-letter neighbors, substitutions that keep the same letter
+category (vowel-for-vowel or consonant-for-consonant) are preferred, since
+that best preserves syllable structure and produces a plausible-sounding
+"relative" of the original pseudoword (e.g. `chare` → `chave`, `tunup` → `nunup`).
+
+### Usage
+
+```bash
+.venv/bin/python3 second_pseudowords.py \
+    --input     data/two-pseudowords.csv \
+    --clearpond data/englishCPdatabase2/englishCPdatabase2.txt \
+    --output    data/two-pseudowords_expanded.csv \
+    --seed      42
+```
+
+| Flag           | Default | Description |
+|----------------|---------|-------------|
+| `--input`      | *(required)* | CSV containing `Word` and `Pseudoword` columns (the output of `pseudowords.py`, or any CSV with those two columns) |
+| `--clearpond`  | *(required)* | Path to `englishCPdatabase2.txt` |
+| `--output`     | `two-pseudowords_expanded.csv` | Output CSV path — original columns preserved, `Pseudoword2*` columns appended |
+| `--seed`       | `42` | Random seed controlling tie-breaks between equally-good candidates (fully reproducible — candidate lists are sorted before shuffling) |
+
+### Added output columns
+
+| Column | Description |
+|--------|-------------|
+| `Pseudoword2` | The generated second pseudoword |
+| `Pseudoword2_EditDistance` | Number of letters changed from `Pseudoword` (1, occasionally 2) |
+| `Pseudoword2_PTAN` / `Pseudoword2_PTAF` | Phonological neighborhood size/frequency mean of `Pseudoword2` |
+| `Pseudoword2_OTAN` / `Pseudoword2_OTAF` | Orthographic neighborhood size/frequency mean of `Pseudoword2` |
+| `Pseudoword2_vs_Pseudoword_PTAF_RelDiff_Pct` | Relative PTAF difference between `Pseudoword2` and `Pseudoword` |
+| `Status2` | `MATCHED` (phonotactically valid pick), `BEST_AVAILABLE` (relaxed fallback, no phonotactic match found), or `NO_CANDIDATE` |
+
+**Caveat:** "not a real word" is checked against the same CLEARPOND lexicon the
+rest of the pipeline trusts (~28k words), not a full English dictionary —
+spot-check borderline outputs manually.
+
+---
+
 ## Notes
 
 - **Static Type Safety:** Fully type-safe and validated using the `pyrefly` static type analysis.
