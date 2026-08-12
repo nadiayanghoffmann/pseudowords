@@ -1,0 +1,57 @@
+Stim1,Word_PTAN,Word_PTAF,Word_OTAN,Word_OTAF,Mismatch Stim 2,PTAN,PTAF,OTAN,OTAF,Position,Notes,Pseudoword1,Pseudoword_PTAN,Pseudoword_PTAF,Pseudoword_OTAN,Pseudoword_OTAF,PTAF_RelDiff_Pct,Pseudoword2,Pseudoword2_EditDistance,Pseudoword2_PTAN,Pseudoword2_PTAF,Pseudoword2_OTAN,Pseudoword2_OTAF,Pseudoword2_vs_Pseudoword_PTAF_RelDiff_Pct,Status2
+chair,37,220.2279,7,27.6163,choir,6,40.3333,2,24.8039,middle,,chare,37,220.2279,10,71.0725,0,ghare,1,35,365.0471,3,24.9804,65.76,MATCHED
+stone,18,6.9662,12,15.1356,atone,4,91.7353,3,122.0065,start,,stoid,12,6.6176,2,13.098,5,sroid,1,1,4.5098,0,0,31.85,MATCHED
+pearl,30,35.051,5,5.8039,,,,,,,,peard,27,34.6042,5,83.6667,1.27,ceard,1,31,95.759,3,161.9281,176.73,MATCHED
+cloth,5,2.4784,5,1.0235,sloth,3,3.634,3,4.3987,start,,swoth,7,2.7703,1,1.451,11.78,swath,1,2,1.451,2,2.098,47.62,MATCHED
+tulip,1,1.1373,1,1.1373,tunic,2,2.8529,1,3.8235,middle/end,2 changes,tunup,1,1.1569,1,1.1569,1.72,munup,1,1,1.1569,1,1.1569,0,MATCHED
+flame,9,14.2331,7,15.1289,blame,9,9.4575,8,6.826,start,,flaim,9,14.2331,2,13.8333,0,flail,1,5,7.4627,3,9.4836,47.57,MATCHED
+block,17,20.4106,8,38.3162,black,20,105.9775,8,260.9877,middle,,blote,12,20.1944,2,2.8039,1.06,plote,1,8,6.1667,3,12.9739,69.46,MATCHED
+scale,12,34.0735,6,11.3203,stale,24,75.8864,13,25.7753,start/middle,,scail,12,34.0735,2,7.7549,0,slail,1,13,6.7255,3,5.7712,80.26,MATCHED
+cable,11,25.4474,7,38.6219,table,12,21.116,9,24.7059,start,,jadle,3,25.4837,2,2.9118,0.14,jaxle,1,4,2.201,1,1.2353,91.36,MATCHED
+brush,6,9.0131,5,13.0824,crush,9,9.8083,4,19.3677,start,,brude,19,9.129,6,12.5327,1.29,brume,1,14,36.3711,2,12.2549,298.41,MATCHED
+token,3,47.0784,4,35.5098,taken,4,4.897,5,402.7451,start/middle,,talen,3,46.6471,6,30.9477,0.92,zalen,1,1,0.7843,1,0.7843,98.32,MATCHED
+model,10,11.4412,5,6.8196,motel,2,52.1471,3,45.451,middle,,jowel,12,11.2908,5,6.6902,1.31,jovel,1,3,4.0261,4,4.8971,64.34,MATCHED
+frame,12,173.4444,4,6.3529,flame,9,14.2331,7,15.1289,start/middle,,fraim,12,173.4444,1,1.5882,0,graim,1,19,65.1837,4,3.7059,62.42,MATCHED
+throne,11,18.6239,2,1.2353,,,,,,,,throck,5,18.5216,0,0,0.55,throch,1,0,0,0,0,100,MATCHED
+beacon,5,5.7647,2,7.3627,season,7,34.4258,2,98.7058,start/middle,2 changes,beaken,5,5.7647,3,4.5294,0,keaken,1,4,2.2108,2,0.9412,61.65,MATCHED
+fabric,1,0.7451,1,0.7451,,,,,,,,fetric,1,0.4902,1,0.4902,34.21,setric,1,1,0.4902,1,0.4902,0,MATCHED
+dragon,1,4.549,2,2.4608,,,,,,,,scalon,1,4.5882,1,4.5882,0.86,scagon,1,0,0,0,0,100,MATCHED
+clinic,2,1.951,1,0.98039,,,,,,,,granic,2,1.9607,0,0,0.5,gnanic,1,3,7.9869,0,0,307.35,MATCHED
+helmet,1,2.0196,1,2.0196,,,,,,,,herbet,2,2.3922,2,2.3922,18.45,lerbet,1,1,0.5686,0,0,76.23,MATCHED
+jungle,3,2.4052,3,2.4052,,,,,,,,dundle,2,2.3726,2,2.3726,1.36,pundle,1,2,2.9216,2,2.9216,23.14,MATCHED
+marble,7,8.9132,1,3.0392,,,,,,,,cabble,13,8.8673,5,5.1216,0.52,qabble,1,1,0.5882,3,0.8301,93.37,MATCHED
+signal,3,3.4837,1,9.5294,,,,,,,,siscal,3,0.9935,1,0.7647,71.48,sescal,1,2,1.2549,1,0.549,26.31,MATCHED
+ticket,4,11.7794,5,9.6392,picket,5,30.7098,5,30.7372,start,,nocket,7,11.4454,5,10.4118,2.84,nockey,1,10,14.5745,2,8.1863,27.34,MATCHED
+hazard,3,1.1961,1,0.62745,,,,,,,,hacate,1,1.098,2,0.7549,8.2,cacate,1,1,1.098,1,1.098,0,MATCHED
+napkin,1,2.5686,1,2.5686,,,,,,,,napron,1,2.6667,1,2.6667,3.82,hapron,1,1,2.6667,1,2.6667,0,MATCHED
+manual,2,3.902,1,0.60784,,,,,,,,pequal,2,7.5686,1,13.3725,93.97,lequal,1,2,7.5686,1,13.3725,0,MATCHED
+lizard,6,2.5229,2,5.951,wizard,4,1.8627,2,2.9607,start,,ticard,2,1.7549,1,1.5294,30.44,hicard,1,1,1.5294,1,1.5294,12.85,MATCHED
+blanket,1,5.098,1,5.098,bracket,1,7.4314,2,4.0294,middle,2 changes,blandit,1,3.7451,1,3.7451,26.54,clandit,1,0,0,0,0,100,MATCHED
+monster,4,6.2892,3,4.0131,,,,,,,,mandler,3,6.0262,2,1.6863,4.18,yandler,1,3,6.0262,2,1.6863,0,MATCHED
+picture,4,18.6618,2,35.402,,,,,,,,mecture,1,10.4706,1,10.4706,43.89,secture,1,2,8.7647,2,17.4019,16.29,MATCHED
+machine,1,13.8627,1,13.8627,,,,,,,,mawhile,1,9.4706,1,9.4706,31.68,jawhile,1,1,9.4706,1,9.4706,0,MATCHED
+village,1,0.60784,2,1.5098,pillage,1,33.5686,1,33.5686,start,,vollard,1,0.7451,1,0.7451,22.58,lollard,1,1,0.7451,1,0.7451,0,MATCHED
+kitchen,2,2.7255,1,0.72549,,,,,,,,gitcher,3,2.7582,1,3.2353,1.2,litcher,1,5,8.5255,1,3.2353,209.1,MATCHED
+mustard,3,1.3725,1,1.2549,custard,2,3.4118,1,6.451,,,mestart,1,0.5882,1,0.5882,57.14,destart,1,2,0.4902,1,0.5882,16.66,MATCHED
+cartoon,2,2.3529,2,2.3529,,,,,,,,bartian,3,2.2484,1,1.7255,4.44,wartian,1,1,1.7255,1,1.7255,23.26,MATCHED
+perch,19,12.4221,2,7.9902,porch,15,7.2052,4,2.2402,start/middle,,purch,19,12.4221,4,10.2843,0,zorch,1,2,7.304,2,7.304,1.37,MATCHED
+dolphin,1,3.9608,1,3.9608,,,,,,,,dorphan,2,4.4608,1,5.7451,12.62,porphan,1,2,5.0392,1,5.7451,12.97,MATCHED
+mansion,2,30.0882,1,0.70588,,,,,,,,hension,3,24.2876,2,6.696,19.28,yension,1,3,24.2876,2,6.696,0,MATCHED
+biscuit,1,3.2745,1,3.2745,,,,,,,,hircuit,2,3.9216,1,6.6667,19.76,kircuit,1,1,6.6667,1,6.6667,70,MATCHED
+koala,1,5.5294,0,0,,,,,,,,kuano,13,3.724,1,0.3922,32.65,buano,1,7,7.9664,1,0.3922,113.92,MATCHED
+cigar,1,6.6667,1,6.6667,,,,,,,,bicar,18,6.4978,1,1.4706,2.53,gicar,1,10,2.7392,1,1.4706,57.84,MATCHED
+nylon,2,0.89216,2,0.89216,pylon,2,0.85292,2,0.85292,start,,nison,2,0.9608,2,2.3627,7.69,xison,1,2,0.9608,0,0,0,MATCHED
+mango,3,2.183,3,2.5686,mangy,2,8.8137,4,94.6765,end,,matso,2,2.1765,3,1.7713,0.3,natso,1,3,3.6601,1,3.1569,68.17,MATCHED
+dagger,5,1.5529,3,16.5556,danger,4,2.8578,9,6.0131,middle,,vagged,3,1.5294,5,1.3451,1.51,vagger,1,3,2.1961,1,4.9216,43.59,MATCHED
+bonnet,1,0.76471,2,0.58824,sonnet,3,1.3137,2,1.1666,start,,donset,1,0.8431,1,0.8431,10.26,vonset,1,1,0.8431,1,0.8431,0,MATCHED
+violin,1,1.0588,1,1.0588,,,,,,,,tyodin,1,1.2157,0,0,14.82,tsodin,1,0,0,0,0,100,MATCHED
+pellet,3,0.6732,2,0.53921,,,,,,,2 changes,callet,3,0.5817,6,63.0882,13.59,yallet,1,2,0.549,4,8.5392,5.62,MATCHED
+lobster,2,1.4902,2,1.4902,mobster,2,23.098,2,23.098,start,,tobbler,2,1.5588,1,2.3333,4.6,sobbler,1,1,2.3333,1,2.3333,49.69,MATCHED
+trumpet,2,0.66667,2,0.66667,,,,,,,,trunket,1,0.7059,1,0.7059,5.88,drunket,1,0,0,2,3.353,100,MATCHED
+kitten,8,16.8088,3,1.915,mitten,9,11.8824,4,2.6618,start,,kidden,5,17.4824,3,8.0915,4.01,sidden,1,4,14.3137,3,18.9608,18.12,MATCHED
+,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,Stim1 REAL WORDS ↔ Stim1 PSEUDOWORDS,,,,,,REAL-WORD Stim2 mismatches ↔ PSEUDOWORD Stim2 mismatches,,,,,,,,,,,,,,,
+,,,,WORD1,PTAF,OTAF,PTAN,OTAN,,WORD2 (mismatching),PTAF,OTAF,PTAN,OTAN,,,,,,,,,,,
+,,,,words,23.9804888,50.5272808,6.44,4.24,,words,,,,,,,,,,,,,,,
+,,,,pseudowords,15.098206,7.5818,4.44,1.5,,pseudowords,,,,,,,,,,,,,,,
+,,,,P-value of T-test,0.4394439877,0.0003467437871,0.2282661804,0.0000003536101564,,P-value of T-test,,,,,,,,,,,,,,,

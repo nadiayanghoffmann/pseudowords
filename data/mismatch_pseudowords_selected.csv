@@ -1,0 +1,57 @@
+Stim1,Pseudoword1,Pseudoword2,Pseudoword2_PTAN,Pseudoword2_PTAF,Pseudoword2_OTAN,Pseudoword2_OTAF,Selected
+chair,chare,ghare,35.0,365.0471,3.0,24.9804,YES
+pearl,peard,ceard,31.0,95.759,3.0,161.9281,YES
+cloth,swoth,swath,2.0,1.451,2.0,2.098,YES
+flame,flaim,flail,5.0,7.4627,3.0,9.4836,YES
+block,blote,plote,8.0,6.1667,3.0,12.9739,YES
+scale,scail,slail,13.0,6.7255,3.0,5.7712,YES
+brush,brude,brume,14.0,36.3711,2.0,12.2549,YES
+model,jowel,jovel,3.0,4.0261,4.0,4.8971,YES
+frame,fraim,graim,19.0,65.1837,4.0,3.7059,YES
+beacon,beaken,keaken,4.0,2.2108,2.0,0.9412,YES
+jungle,dundle,pundle,2.0,2.9216,2.0,2.9216,YES
+marble,cabble,qabble,1.0,0.5882,3.0,0.8301,YES
+ticket,nocket,nockey,10.0,14.5745,2.0,8.1863,YES
+manual,pequal,lequal,2.0,7.5686,1.0,13.3725,YES
+monster,mandler,yandler,3.0,6.0262,2.0,1.6863,YES
+picture,mecture,secture,2.0,8.7647,2.0,17.4019,YES
+machine,mawhile,jawhile,1.0,9.4706,1.0,9.4706,YES
+perch,purch,zorch,2.0,7.304,2.0,7.304,YES
+dolphin,dorphan,porphan,2.0,5.0392,1.0,5.7451,YES
+mansion,hension,yension,3.0,24.2876,2.0,6.696,YES
+biscuit,hircuit,kircuit,1.0,6.6667,1.0,6.6667,YES
+dagger,vagged,vagger,3.0,2.1961,1.0,4.9216,YES
+pellet,callet,yallet,2.0,0.549,4.0,8.5392,YES
+trumpet,trunket,drunket,0.0,0.0,2.0,3.353,YES
+kitten,kidden,sidden,4.0,14.3137,3.0,18.9608,YES
+stone,stoid,sroid,1.0,4.5098,0.0,0.0,no
+tulip,tunup,munup,1.0,1.1569,1.0,1.1569,no
+cable,jadle,jaxle,4.0,2.201,1.0,1.2353,no
+token,talen,zalen,1.0,0.7843,1.0,0.7843,no
+throne,throck,throch,0.0,0.0,0.0,0.0,no
+fabric,fetric,setric,1.0,0.4902,1.0,0.4902,no
+dragon,scalon,scagon,0.0,0.0,0.0,0.0,no
+clinic,granic,gnanic,3.0,7.9869,0.0,0.0,no
+helmet,herbet,lerbet,1.0,0.5686,0.0,0.0,no
+signal,siscal,sescal,2.0,1.2549,1.0,0.549,no
+hazard,hacate,cacate,1.0,1.098,1.0,1.098,no
+napkin,napron,hapron,1.0,2.6667,1.0,2.6667,no
+lizard,ticard,hicard,1.0,1.5294,1.0,1.5294,no
+blanket,blandit,clandit,0.0,0.0,0.0,0.0,no
+village,vollard,lollard,1.0,0.7451,1.0,0.7451,no
+kitchen,gitcher,litcher,5.0,8.5255,1.0,3.2353,no
+mustard,mestart,destart,2.0,0.4902,1.0,0.5882,no
+cartoon,bartian,wartian,1.0,1.7255,1.0,1.7255,no
+koala,kuano,buano,7.0,7.9664,1.0,0.3922,no
+cigar,bicar,gicar,10.0,2.7392,1.0,1.4706,no
+nylon,nison,xison,2.0,0.9608,0.0,0.0,no
+mango,matso,natso,3.0,3.6601,1.0,3.1569,no
+bonnet,donset,vonset,1.0,0.8431,1.0,0.8431,no
+violin,tyodin,tsodin,0.0,0.0,0.0,0.0,no
+lobster,tobbler,sobbler,1.0,2.3333,1.0,2.3333,no
+,,,,,,,
+Real-word mismatch mean,,,6.44,23.9805,4.24,50.5273,
+Selected pseudoword mean,,,6.88,28.027,2.32,14.2036,
+Cohen's d,,,0.0569,0.0723,-0.838,-0.5236,
+t-test p-value,,,0.8413,0.7993,0.0047,0.0703,
+Composite score (sum d^2),0.9848,,,,,,
