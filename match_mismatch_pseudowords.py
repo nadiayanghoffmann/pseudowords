@@ -65,11 +65,19 @@ class Candidate:
     stats: dict  # measure -> float
 
 
+@dataclass
+class TargetItem:
+    stim1: str
+    mismatch_stim2: str
+    stats: dict  # measure -> float
+
+
 def load_data(path: str):
     """
-    Returns (target, pool):
-      target — dict measure -> np.array of real-word Mismatch Stim2 values
-      pool   — list[Candidate] of all rows with a Pseudoword2 value
+    Returns (target, target_items, pool):
+      target       — dict measure -> np.array of real-word Mismatch Stim2 values (for scoring)
+      target_items — list[TargetItem], the same data with Stim1/Mismatch Stim2 text (for display)
+      pool         — list[Candidate] of all rows with a Pseudoword2 value
     """
     with open(path, newline="", encoding="utf-8-sig") as f:
         rows = list(csv.DictReader(f))
@@ -78,6 +86,14 @@ def load_data(path: str):
 
     target_rows = [r for r in valid if (r.get("Mismatch Stim 2") or "").strip()]
     target = {m: np.array([float(r[m]) for r in target_rows]) for m in MEASURES}
+    target_items = [
+        TargetItem(
+            stim1=r["Stim1"],
+            mismatch_stim2=r["Mismatch Stim 2"].strip(),
+            stats={m: float(r[m]) for m in MEASURES},
+        )
+        for r in target_rows
+    ]
 
     pool = []
     for r in valid:
@@ -100,7 +116,7 @@ def load_data(path: str):
 
     print(f"Real-word Mismatch Stim2 (target) set: {len(target_rows)} items")
     print(f"Candidate Pseudoword2 pool: {len(pool)} items")
-    return target, pool
+    return target, target_items, pool
 
 
 def cohens_d_and_p(sample: np.ndarray, target: np.ndarray) -> tuple[float, float]:
@@ -199,7 +215,7 @@ def simulated_annealing(
 def run(input_path: str, output_path: str, n_restarts: int, n_steps: int, seed: int) -> None:
     rng = random.Random(seed)
 
-    target, pool = load_data(input_path)
+    target, target_items, pool = load_data(input_path)
     k = len(target[MEASURES[0]])
     n_pool = len(pool)
 
@@ -232,34 +248,49 @@ def run(input_path: str, output_path: str, n_restarts: int, n_steps: int, seed: 
     print(f"All four measures non-significant (p ≥ 0.05): {'YES' if all_nonsignificant else 'NO — inspect above'}")
 
     # ── Write output ──────────────────────────────────────────────────────
-    fieldnames = [
-        "Stim1", "Pseudoword1", "Pseudoword2",
-        "Pseudoword2_PTAN", "Pseudoword2_PTAF", "Pseudoword2_OTAN", "Pseudoword2_OTAF",
-        "Selected",
-    ]
+    # Section 1: the real-word Mismatch Stim2 target items (the ones the
+    #            search was trying to match), listed individually — not just
+    #            their aggregate mean — so both sides of the comparison are
+    #            visible for manual inspection.
+    # Section 2: the Pseudoword2 candidate pool, selected and unselected.
+    # Section 3: group means / Cohen's d / p-values / composite score.
+    fieldnames = ["Section", "Stim1", "Pseudoword1", "Item", "PTAN", "PTAF", "OTAN", "OTAF", "Selected"]
     with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
+
+        for t in target_items:
+            writer.writerow({
+                "Section": "Real-word Mismatch Stim2 (target)",
+                "Stim1": t.stim1, "Pseudoword1": "", "Item": t.mismatch_stim2,
+                "PTAN": t.stats["PTAN"], "PTAF": t.stats["PTAF"],
+                "OTAN": t.stats["OTAN"], "OTAF": t.stats["OTAF"],
+                "Selected": "",
+            })
+
         for c in selected:
             writer.writerow({
-                "Stim1": c.stim1, "Pseudoword1": c.pseudoword1, "Pseudoword2": c.pseudoword2,
-                "Pseudoword2_PTAN": c.stats["PTAN"], "Pseudoword2_PTAF": c.stats["PTAF"],
-                "Pseudoword2_OTAN": c.stats["OTAN"], "Pseudoword2_OTAF": c.stats["OTAF"],
+                "Section": "Pseudoword2 candidate", "Stim1": c.stim1,
+                "Pseudoword1": c.pseudoword1, "Item": c.pseudoword2,
+                "PTAN": c.stats["PTAN"], "PTAF": c.stats["PTAF"],
+                "OTAN": c.stats["OTAN"], "OTAF": c.stats["OTAF"],
                 "Selected": "YES",
             })
         for c in unselected:
             writer.writerow({
-                "Stim1": c.stim1, "Pseudoword1": c.pseudoword1, "Pseudoword2": c.pseudoword2,
-                "Pseudoword2_PTAN": c.stats["PTAN"], "Pseudoword2_PTAF": c.stats["PTAF"],
-                "Pseudoword2_OTAN": c.stats["OTAN"], "Pseudoword2_OTAF": c.stats["OTAF"],
+                "Section": "Pseudoword2 candidate", "Stim1": c.stim1,
+                "Pseudoword1": c.pseudoword1, "Item": c.pseudoword2,
+                "PTAN": c.stats["PTAN"], "PTAF": c.stats["PTAF"],
+                "OTAN": c.stats["OTAN"], "OTAF": c.stats["OTAF"],
                 "Selected": "no",
             })
+
         writer.writerow({k: "" for k in fieldnames})
-        writer.writerow({"Stim1": "Real-word mismatch mean", **{f"Pseudoword2_{m}": round(target_means[m], 4) for m in MEASURES}})
-        writer.writerow({"Stim1": "Selected pseudoword mean", **{f"Pseudoword2_{m}": round(selected_means[m], 4) for m in MEASURES}})
-        writer.writerow({"Stim1": "Cohen's d", **{f"Pseudoword2_{m}": round(best_d[m], 4) for m in MEASURES}})
-        writer.writerow({"Stim1": "t-test p-value", **{f"Pseudoword2_{m}": round(best_p[m], 4) for m in MEASURES}})
-        writer.writerow({"Stim1": "Composite score (sum d^2)", "Pseudoword1": round(best_score, 4)})
+        writer.writerow({"Section": "Real-word mismatch mean", **{m: round(target_means[m], 4) for m in MEASURES}})
+        writer.writerow({"Section": "Selected pseudoword mean", **{m: round(selected_means[m], 4) for m in MEASURES}})
+        writer.writerow({"Section": "Cohen's d", **{m: round(best_d[m], 4) for m in MEASURES}})
+        writer.writerow({"Section": "t-test p-value", **{m: round(best_p[m], 4) for m in MEASURES}})
+        writer.writerow({"Section": "Composite score (sum d^2)", "Stim1": round(best_score, 4)})
 
     print(f"\nWritten → {output_path}")
 

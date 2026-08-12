@@ -1,57 +1,82 @@
-Stim1,Pseudoword1,Pseudoword2,Pseudoword2_PTAN,Pseudoword2_PTAF,Pseudoword2_OTAN,Pseudoword2_OTAF,Selected
-chair,chare,ghare,35.0,365.0471,3.0,24.9804,YES
-pearl,peard,ceard,31.0,95.759,3.0,161.9281,YES
-cloth,swoth,swath,2.0,1.451,2.0,2.098,YES
-flame,flaim,flail,5.0,7.4627,3.0,9.4836,YES
-block,blote,plote,8.0,6.1667,3.0,12.9739,YES
-scale,scail,slail,13.0,6.7255,3.0,5.7712,YES
-brush,brude,brume,14.0,36.3711,2.0,12.2549,YES
-model,jowel,jovel,3.0,4.0261,4.0,4.8971,YES
-frame,fraim,graim,19.0,65.1837,4.0,3.7059,YES
-beacon,beaken,keaken,4.0,2.2108,2.0,0.9412,YES
-jungle,dundle,pundle,2.0,2.9216,2.0,2.9216,YES
-marble,cabble,qabble,1.0,0.5882,3.0,0.8301,YES
-ticket,nocket,nockey,10.0,14.5745,2.0,8.1863,YES
-manual,pequal,lequal,2.0,7.5686,1.0,13.3725,YES
-monster,mandler,yandler,3.0,6.0262,2.0,1.6863,YES
-picture,mecture,secture,2.0,8.7647,2.0,17.4019,YES
-machine,mawhile,jawhile,1.0,9.4706,1.0,9.4706,YES
-perch,purch,zorch,2.0,7.304,2.0,7.304,YES
-dolphin,dorphan,porphan,2.0,5.0392,1.0,5.7451,YES
-mansion,hension,yension,3.0,24.2876,2.0,6.696,YES
-biscuit,hircuit,kircuit,1.0,6.6667,1.0,6.6667,YES
-dagger,vagged,vagger,3.0,2.1961,1.0,4.9216,YES
-pellet,callet,yallet,2.0,0.549,4.0,8.5392,YES
-trumpet,trunket,drunket,0.0,0.0,2.0,3.353,YES
-kitten,kidden,sidden,4.0,14.3137,3.0,18.9608,YES
-stone,stoid,sroid,1.0,4.5098,0.0,0.0,no
-tulip,tunup,munup,1.0,1.1569,1.0,1.1569,no
-cable,jadle,jaxle,4.0,2.201,1.0,1.2353,no
-token,talen,zalen,1.0,0.7843,1.0,0.7843,no
-throne,throck,throch,0.0,0.0,0.0,0.0,no
-fabric,fetric,setric,1.0,0.4902,1.0,0.4902,no
-dragon,scalon,scagon,0.0,0.0,0.0,0.0,no
-clinic,granic,gnanic,3.0,7.9869,0.0,0.0,no
-helmet,herbet,lerbet,1.0,0.5686,0.0,0.0,no
-signal,siscal,sescal,2.0,1.2549,1.0,0.549,no
-hazard,hacate,cacate,1.0,1.098,1.0,1.098,no
-napkin,napron,hapron,1.0,2.6667,1.0,2.6667,no
-lizard,ticard,hicard,1.0,1.5294,1.0,1.5294,no
-blanket,blandit,clandit,0.0,0.0,0.0,0.0,no
-village,vollard,lollard,1.0,0.7451,1.0,0.7451,no
-kitchen,gitcher,litcher,5.0,8.5255,1.0,3.2353,no
-mustard,mestart,destart,2.0,0.4902,1.0,0.5882,no
-cartoon,bartian,wartian,1.0,1.7255,1.0,1.7255,no
-koala,kuano,buano,7.0,7.9664,1.0,0.3922,no
-cigar,bicar,gicar,10.0,2.7392,1.0,1.4706,no
-nylon,nison,xison,2.0,0.9608,0.0,0.0,no
-mango,matso,natso,3.0,3.6601,1.0,3.1569,no
-bonnet,donset,vonset,1.0,0.8431,1.0,0.8431,no
-violin,tyodin,tsodin,0.0,0.0,0.0,0.0,no
-lobster,tobbler,sobbler,1.0,2.3333,1.0,2.3333,no
-,,,,,,,
-Real-word mismatch mean,,,6.44,23.9805,4.24,50.5273,
-Selected pseudoword mean,,,6.88,28.027,2.32,14.2036,
-Cohen's d,,,0.0569,0.0723,-0.838,-0.5236,
-t-test p-value,,,0.8413,0.7993,0.0047,0.0703,
-Composite score (sum d^2),0.9848,,,,,,
+Section,Stim1,Pseudoword1,Item,PTAN,PTAF,OTAN,OTAF,Selected
+Real-word Mismatch Stim2 (target),chair,,choir,6.0,40.3333,2.0,24.8039,
+Real-word Mismatch Stim2 (target),stone,,atone,4.0,91.7353,3.0,122.0065,
+Real-word Mismatch Stim2 (target),cloth,,sloth,3.0,3.634,3.0,4.3987,
+Real-word Mismatch Stim2 (target),tulip,,tunic,2.0,2.8529,1.0,3.8235,
+Real-word Mismatch Stim2 (target),flame,,blame,9.0,9.4575,8.0,6.826,
+Real-word Mismatch Stim2 (target),block,,black,20.0,105.9775,8.0,260.9877,
+Real-word Mismatch Stim2 (target),scale,,stale,24.0,75.8864,13.0,25.7753,
+Real-word Mismatch Stim2 (target),cable,,table,12.0,21.116,9.0,24.7059,
+Real-word Mismatch Stim2 (target),brush,,crush,9.0,9.8083,4.0,19.3677,
+Real-word Mismatch Stim2 (target),token,,taken,4.0,4.897,5.0,402.7451,
+Real-word Mismatch Stim2 (target),model,,motel,2.0,52.1471,3.0,45.451,
+Real-word Mismatch Stim2 (target),frame,,flame,9.0,14.2331,7.0,15.1289,
+Real-word Mismatch Stim2 (target),beacon,,season,7.0,34.4258,2.0,98.7058,
+Real-word Mismatch Stim2 (target),ticket,,picket,5.0,30.7098,5.0,30.7372,
+Real-word Mismatch Stim2 (target),lizard,,wizard,4.0,1.8627,2.0,2.9607,
+Real-word Mismatch Stim2 (target),blanket,,bracket,1.0,7.4314,2.0,4.0294,
+Real-word Mismatch Stim2 (target),village,,pillage,1.0,33.5686,1.0,33.5686,
+Real-word Mismatch Stim2 (target),mustard,,custard,2.0,3.4118,1.0,6.451,
+Real-word Mismatch Stim2 (target),perch,,porch,15.0,7.2052,4.0,2.2402,
+Real-word Mismatch Stim2 (target),nylon,,pylon,2.0,0.85292,2.0,0.85292,
+Real-word Mismatch Stim2 (target),mango,,mangy,2.0,8.8137,4.0,94.6765,
+Real-word Mismatch Stim2 (target),dagger,,danger,4.0,2.8578,9.0,6.0131,
+Real-word Mismatch Stim2 (target),bonnet,,sonnet,3.0,1.3137,2.0,1.1666,
+Real-word Mismatch Stim2 (target),lobster,,mobster,2.0,23.098,2.0,23.098,
+Real-word Mismatch Stim2 (target),kitten,,mitten,9.0,11.8824,4.0,2.6618,
+Pseudoword2 candidate,chair,chare,ghare,35.0,365.0471,3.0,24.9804,YES
+Pseudoword2 candidate,pearl,peard,ceard,31.0,95.759,3.0,161.9281,YES
+Pseudoword2 candidate,cloth,swoth,swath,2.0,1.451,2.0,2.098,YES
+Pseudoword2 candidate,flame,flaim,flail,5.0,7.4627,3.0,9.4836,YES
+Pseudoword2 candidate,block,blote,plote,8.0,6.1667,3.0,12.9739,YES
+Pseudoword2 candidate,scale,scail,slail,13.0,6.7255,3.0,5.7712,YES
+Pseudoword2 candidate,brush,brude,brume,14.0,36.3711,2.0,12.2549,YES
+Pseudoword2 candidate,model,jowel,jovel,3.0,4.0261,4.0,4.8971,YES
+Pseudoword2 candidate,frame,fraim,graim,19.0,65.1837,4.0,3.7059,YES
+Pseudoword2 candidate,beacon,beaken,keaken,4.0,2.2108,2.0,0.9412,YES
+Pseudoword2 candidate,jungle,dundle,pundle,2.0,2.9216,2.0,2.9216,YES
+Pseudoword2 candidate,marble,cabble,qabble,1.0,0.5882,3.0,0.8301,YES
+Pseudoword2 candidate,ticket,nocket,nockey,10.0,14.5745,2.0,8.1863,YES
+Pseudoword2 candidate,manual,pequal,lequal,2.0,7.5686,1.0,13.3725,YES
+Pseudoword2 candidate,monster,mandler,yandler,3.0,6.0262,2.0,1.6863,YES
+Pseudoword2 candidate,picture,mecture,secture,2.0,8.7647,2.0,17.4019,YES
+Pseudoword2 candidate,machine,mawhile,jawhile,1.0,9.4706,1.0,9.4706,YES
+Pseudoword2 candidate,perch,purch,zorch,2.0,7.304,2.0,7.304,YES
+Pseudoword2 candidate,dolphin,dorphan,porphan,2.0,5.0392,1.0,5.7451,YES
+Pseudoword2 candidate,mansion,hension,yension,3.0,24.2876,2.0,6.696,YES
+Pseudoword2 candidate,biscuit,hircuit,kircuit,1.0,6.6667,1.0,6.6667,YES
+Pseudoword2 candidate,dagger,vagged,vagger,3.0,2.1961,1.0,4.9216,YES
+Pseudoword2 candidate,pellet,callet,yallet,2.0,0.549,4.0,8.5392,YES
+Pseudoword2 candidate,trumpet,trunket,drunket,0.0,0.0,2.0,3.353,YES
+Pseudoword2 candidate,kitten,kidden,sidden,4.0,14.3137,3.0,18.9608,YES
+Pseudoword2 candidate,stone,stoid,sroid,1.0,4.5098,0.0,0.0,no
+Pseudoword2 candidate,tulip,tunup,munup,1.0,1.1569,1.0,1.1569,no
+Pseudoword2 candidate,cable,jadle,jaxle,4.0,2.201,1.0,1.2353,no
+Pseudoword2 candidate,token,talen,zalen,1.0,0.7843,1.0,0.7843,no
+Pseudoword2 candidate,throne,throck,throch,0.0,0.0,0.0,0.0,no
+Pseudoword2 candidate,fabric,fetric,setric,1.0,0.4902,1.0,0.4902,no
+Pseudoword2 candidate,dragon,scalon,scagon,0.0,0.0,0.0,0.0,no
+Pseudoword2 candidate,clinic,granic,gnanic,3.0,7.9869,0.0,0.0,no
+Pseudoword2 candidate,helmet,herbet,lerbet,1.0,0.5686,0.0,0.0,no
+Pseudoword2 candidate,signal,siscal,sescal,2.0,1.2549,1.0,0.549,no
+Pseudoword2 candidate,hazard,hacate,cacate,1.0,1.098,1.0,1.098,no
+Pseudoword2 candidate,napkin,napron,hapron,1.0,2.6667,1.0,2.6667,no
+Pseudoword2 candidate,lizard,ticard,hicard,1.0,1.5294,1.0,1.5294,no
+Pseudoword2 candidate,blanket,blandit,clandit,0.0,0.0,0.0,0.0,no
+Pseudoword2 candidate,village,vollard,lollard,1.0,0.7451,1.0,0.7451,no
+Pseudoword2 candidate,kitchen,gitcher,litcher,5.0,8.5255,1.0,3.2353,no
+Pseudoword2 candidate,mustard,mestart,destart,2.0,0.4902,1.0,0.5882,no
+Pseudoword2 candidate,cartoon,bartian,wartian,1.0,1.7255,1.0,1.7255,no
+Pseudoword2 candidate,koala,kuano,buano,7.0,7.9664,1.0,0.3922,no
+Pseudoword2 candidate,cigar,bicar,gicar,10.0,2.7392,1.0,1.4706,no
+Pseudoword2 candidate,nylon,nison,xison,2.0,0.9608,0.0,0.0,no
+Pseudoword2 candidate,mango,matso,natso,3.0,3.6601,1.0,3.1569,no
+Pseudoword2 candidate,bonnet,donset,vonset,1.0,0.8431,1.0,0.8431,no
+Pseudoword2 candidate,violin,tyodin,tsodin,0.0,0.0,0.0,0.0,no
+Pseudoword2 candidate,lobster,tobbler,sobbler,1.0,2.3333,1.0,2.3333,no
+,,,,,,,,
+Real-word mismatch mean,,,,6.44,23.9805,4.24,50.5273,
+Selected pseudoword mean,,,,6.88,28.027,2.32,14.2036,
+Cohen's d,,,,0.0569,0.0723,-0.838,-0.5236,
+t-test p-value,,,,0.8413,0.7993,0.0047,0.0703,
+Composite score (sum d^2),0.9848,,,,,,,

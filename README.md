@@ -284,16 +284,20 @@ the combinatorial size of the pool (`50 choose 25` is astronomical).
 
 ### Output
 
-The CSV has three parts:
+The CSV has three sections, distinguished by the `Section` column:
 
-1. **Selected rows (`Selected = YES`)** — the winning subset: one row per
-   pseudoword chosen for the pseudoword mismatch condition, with `Stim1`,
-   `Pseudoword1`, `Pseudoword2` (the item to actually use as the mismatch
-   foil), and its own PTAN/PTAF/OTAN/OTAF.
-2. **Unselected rows (`Selected = no`)** — the rest of the candidate pool
-   that was considered but not picked, because including it would have
-   pulled the group means further from the real-word target. Leftover;
-   not used for anything unless you need extra items later.
+1. **`Real-word Mismatch Stim2 (target)`** — every real-word target item
+   individually (not just its aggregate mean): `Stim1`, the actual foil word
+   in `Item` (e.g. `choir` for `chair`), and its own PTAN/PTAF/OTAN/OTAF.
+   This is the full target list the search was trying to match — useful for
+   manually inspecting or cross-checking against `Mismatch Stim 2` in
+   `data/workshopping.csv`.
+2. **`Pseudoword2 candidate`** — every item in the candidate pool, `Selected`
+   flagged `YES` (the winning subset — one row per pseudoword chosen for the
+   pseudoword mismatch condition, `Item` is the pseudoword to actually use
+   as the mismatch foil) or `no` (considered but not picked, because
+   including it would have pulled the group means further from the target;
+   leftover, not used for anything unless you need extra items later).
 3. **Summary block** (after a blank row) — five rows:
 
    | Row | What it is |
